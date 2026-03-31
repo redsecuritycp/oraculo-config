@@ -2,7 +2,7 @@
 
 **Este documento es la fuente única de verdad sobre cómo trabaja Pablo.**
 Todos los proyectos de Claude.ai lo leen al inicio de cada conversación via web_fetch.
-Vive en: oraculo-fortia.replit.app/super-yo
+Vive en: oraculo-pablo.duckdns.org/super-yo
 Última actualización: 2026-03-19
 
 ---
@@ -178,7 +178,7 @@ Todos los proyectos lo ven en la próxima conversación.
 ## CONTRATO DE INTEGRACION — ORACULO
 
 Oraculo recibe datos de captura de cualquier fuente via HTTP POST.
-Endpoint: https://charriest-kyong-gemmily.ngrok-free.dev/empresa/{company_id}/clone/{nombre}/capture
+Endpoint: https://oraculo-pablo.duckdns.org/empresa/{company_id}/clone/{nombre}/capture
 
 ### Formato del POST (JSON body):
 
@@ -242,7 +242,7 @@ Sin excepciones. Si Oraculo no esta disponible, avisar a Pablo y esperar.
 
 ## REPORTE AUTOMÁTICO
 Al finalizar cada conversación significativa (no saludos ni consultas triviales),
-hacer POST a https://charriest-kyong-gemmily.ngrok-free.dev/empresa/oraculo/clone/pablo/claude-mirror
+hacer POST a https://oraculo-pablo.duckdns.org/empresa/oraculo/clone/pablo/claude-mirror
 con JSON: {
   "project": "[nombre del proyecto]",
   "summary": "[resumen de 2-3 líneas de qué se habló]",
