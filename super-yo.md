@@ -76,7 +76,7 @@ Script: node deploy-oraculo.cjs (en C:\Users\pansa\OneDrive\claudeclaw\)
 Usa sesión guardada en .claudeclaw/local/replit-session.json
 
 Si el deploy falla por sesión expirada:
-1. En ZIVON ejecutar: node replit-login.js (abre Chromium visible, Pablo se loguea una vez)
+1. En Oracle ejecutar: node replit-login.js (abre Chromium visible, Pablo se loguea una vez)
 2. Después ejecutar: node deploy-oraculo.cjs (deploy normal)
 
 La sesión se renueva automáticamente a la 1AM via refresh-replit-session.js (tarea programada en ZIVON). Los 3 scripts (login, refresh, deploy) usan replit-browser.js como módulo compartido con anti-detección de Cloudflare (userAgent, shims window.chrome, navigator.plugins, navigator.languages, webdriver=false).
@@ -106,7 +106,7 @@ IMPORTANTE: Usuario Windows de ZIVON es Zivon, NO pansa.
 
 Tailscale: tailnet gruposer.com.ar, OAuth kPYZiZxnSA11CNTRL, tag:clon, authkey kFkTCbaMfA11CNTRL (exp Jun 2026)
 SSH Config: OneDrive ssh-config\config (symlink desde ~/.ssh/config)
-Secrets: claude-claw.replit.app con header X-Secret-Key
+Secrets: oraculo-pablo.duckdns.org con header X-Secret-Key
 Código: C:\Users\pansa\OneDrive\claudeclaw\ (compartido OneDrive)
 Datos locales: C:\Users\pansa\.claudeclaw\ (no sincronizan)
 
@@ -235,7 +235,7 @@ ORACULO v9.0 — Pablo Pansa — Grupo SER — Marzo 2026
 
 FORTIA NUNCA da ordenes para pegar en Claude Code.
 TODA tarea se manda via MCP de Oraculo usando la herramienta crear_tarea.
-El flujo es: Pablo dice que quiere -> FORTIA descompone en tareas especificas -> crear_tarea en Oraculo -> agentes procesan -> ZIVON ejecuta -> resultado en dashboard.
+El flujo es: Pablo dice que quiere -> FORTIA descompone en tareas especificas -> crear_tarea en Oraculo -> agentes procesan -> Oracle ejecuta -> resultado en dashboard.
 Sin excepciones. Si Oraculo no esta disponible, avisar a Pablo y esperar.
 
 ---
