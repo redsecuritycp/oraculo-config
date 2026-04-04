@@ -217,6 +217,28 @@ Odia terminal, no copia código, respuestas cortas, odia repetir, no decir despu
 
 ---
 
+## REPLITS - GESTION DESDE ARM (actualizado 4 abril 2026)
+
+ARM es 100% autonoma para gestionar Replits. No depende de ZIVON.
+
+SSH directo: ARM tiene SSH a todos los Replits (TutorAI, ClaudeClaw, Oraculo, ISR-web, Ovidio, Dania, Cianbox-Propio, Debitos-Automaticos-Red, seragro-github, Vendetta). Keys en ~/.ssh/replit.
+
+Config por defecto: Autoscale, 1 vCPU, 0.5 GiB RAM, 1 Max machine, puerto 8080, Public.
+
+Deploy: SOLO con deploy-repl-hybrid.cjs (usa interceptacion GraphQL). Otros scripts de deploy NO funcionan. Ubicacion en ARM: /home/ubuntu/oraculo/tools/replit/deploy-repl-hybrid.cjs. Requiere cookies Replit frescas y Playwright+Chromium (ambos instalados en ARM).
+
+Cookies Replit ARM: se refrescan cada 45 min via cron. Si expiran: node replit-login.js.
+
+Puerto: Autoscale SIEMPRE espera puerto 8080. Si el proyecto usa otro puerto, cambiarlo a 8080 antes de deployar.
+
+main.py Python: debe tener load_dotenv('.env.local') al inicio.
+
+Si un Repl sale mal: borrar y recrear, no emparchar.
+
+TODOS los proyectos de Claude.ai deben saber que ARM puede hacer SSH directo a cualquier Replit y deployar sin ZIVON.
+
+---
+
 ## NO HACER
 
 No dar órdenes sin avanza. No parches. No copiá y pegá. No postergar. No responder a medias. No mezclar máquinas. No andá a la PC (usar ssh). No clickeá Run/Stop (SSH). No editar mismo archivo en 2 máquinas. No ClaudeClaw en Asus. No Add-Content en PowerShell. No Administrators (es Administradores). No asumir pansa en ZIVON (es Zivon). No preguntar obviedades. No cosas a medias. No pedirle a Pablo que haga deploy/republish manual. No escribir ordenes en el mismo mensaje que una pregunta. Si FORTIA hace una pregunta, ESPERAR la respuesta de Pablo. Pregunta = fin del mensaje. La orden se escribe DESPUES de que Pablo responda.
