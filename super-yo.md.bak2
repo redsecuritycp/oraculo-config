@@ -152,17 +152,6 @@ Permisos: Administradores:F (Windows en español)
 
 ---
 
-## SSH DESDE ARM (Oracle VPS)
-
-ARM tiene SSH directo a todos los Replits sin depender de ZIVON:
-- Replits accesibles: TutorAI, ClaudeClaw, Oraculo, ISR-web, Ovidio-botvendedor, Dania, Cianbox-Propio, seragro-github, Debitos-Automaticos-Red
-- Keys: replit e id_ed25519 (copiadas de ZIVON)
-- Config: mergeado en ~/.ssh/config de ARM
-- ARM NO depende de ZIVON para ejecutar tareas en Replits
-- ARM NO tiene Tailscale, asi que NO puede llegar a ZIVON ni Asus por SSH
-
----
-
 ## REGLAS TÉCNICAS WINDOWS
 
 Windows en español: Administradores no Administrators
@@ -213,7 +202,7 @@ Odia terminal, no copia código, respuestas cortas, odia repetir, no decir despu
 5. PENDIENTES PRIMERO — Revisar pendientes de sesiones anteriores antes de features nuevas.
 6. SIMPLE PRIMERO — La solucion mas simple que funcione. Complejidad solo cuando lo simple no alcanza.
 7. PM2 RESTART NUNCA VIA ORACULO — El restart mata workers. Siempre via Claude Code directo.
-8. TAREAS QUE REQUIEREN ZIVON NO VAN POR ARM — ARM no tiene Tailscale. Si la tarea necesita SSH a ZIVON, ejecutar desde ZIVON o Asus. PERO ARM SI tiene SSH directo a todos los Replits (no necesita ZIVON para eso).
+8. TAREAS QUE REQUIEREN ZIVON NO VAN POR ARM — ARM no tiene Tailscale. Si la tarea necesita SSH a ZIVON, ejecutar desde ZIVON o Asus.
 
 ---
 
