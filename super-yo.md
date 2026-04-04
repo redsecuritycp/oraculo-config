@@ -70,22 +70,17 @@ PM2: pm2 status + pm2 logs. SSH config: revisar. Task Scheduler: schtasks /query
 
 ## DEPLOY DE REPLITS
 
-Deploy se hace via Playwright desde ARM (Oracle) o ZIVON. Nunca manual si se puede evitar.
-
-### Config por defecto de Replits nuevos:
-- Autoscale: 1 vCPU, 0.5 GiB RAM, 1 Max machine
-- Puerto: 8080
-- Visibility: Public
-- Cada Replit nuevo se crea, configura SSH, publica con Publish, y agrega a UptimeRobot automáticamente
+Deploy se hace via Playwright desde ZIVON. Nunca manual si se puede evitar.
+Script principal de deploy: deploy-repl-hybrid.cjs (desde ZIVON). Es el ÚNICO script de deploy válido.
 
 ### Herramienta MCP disponible:
 - deploy_replit: permite hacer deploy de cualquier Replit via MCP desde Oraculo
 
 ### Scripts de Replit (en Oracle: /home/ubuntu/oraculo/tools/replit/):
 - create-repl.js (crear Replit nuevo)
-- deploy-replit.cjs (deploy via Playwright desde ARM)
+- deploy-repl-hybrid.cjs (deploy via Playwright desde ZIVON)
 - run-replit.js (ejecutar Replit)
-- refresh-replit-cookies.js (renovar sesión automáticamente)
+- refresh-replit-cookies.js (renovar sesión automáticamente cada 45 minutos)
 - Cookies en: /home/ubuntu/oraculo/tools/replit/replit-session.json
 
 También disponible en ZIVON: C:\Users\pansa\OneDrive\claudeclaw\
@@ -93,13 +88,34 @@ Sesión guardada en .claudeclaw/local/replit-session.json
 
 Si el deploy falla por sesión expirada:
 1. En Oracle ejecutar: node replit-login.js (abre Chromium visible, Pablo se loguea una vez)
-2. Después ejecutar: node deploy-replit.cjs (deploy normal)
+2. Después ejecutar: node deploy-repl-hybrid.cjs (deploy normal)
 
-La sesión se renueva automáticamente a la 1AM via refresh-replit-cookies.js. Los scripts usan replit-browser.js como módulo compartido con anti-detección de Cloudflare (userAgent, shims window.chrome, navigator.plugins, navigator.languages, webdriver=false).
+La sesión se renueva automáticamente cada 45 minutos via refresh-replit-cookies.js. Los scripts usan replit-browser.js como módulo compartido con anti-detección de Cloudflare (userAgent, shims window.chrome, navigator.plugins, navigator.languages, webdriver=false).
 
-Si Cloudflare bloquea el refresh nocturno → ClaudeClaw avisa a Pablo por WhatsApp. Solución: correr node replit-login.js manualmente (una sola vez).
+Si Cloudflare bloquea el refresh → ClaudeClaw avisa a Pablo por WhatsApp. Solución: correr node replit-login.js manualmente (una sola vez).
 
 NUNCA pedir a Pablo que haga deploy manual desde la UI de Replit si se puede evitar.
+
+---
+
+## REPLITS CONFIG POR DEFECTO
+
+Toda Replit nueva se crea con esta configuración estándar:
+
+| Parámetro | Valor |
+|-----------|-------|
+| Scaling | Autoscale |
+| CPU | 1 vCPU |
+| RAM | 0.5 GiB |
+| Max machines | 1 |
+| Puerto | 8080 |
+| Visibility | Public |
+
+### Reglas de Replits:
+- **Deploy**: Solo con `deploy-repl-hybrid.cjs` desde ZIVON. No usar otro script.
+- **main.py (Python)**: Siempre cargar `.env.local` con `dotenv`. Ejemplo: `from dotenv import load_dotenv; load_dotenv('.env.local')`
+- **Cookies**: Se refrescan cada 45 minutos automáticamente via `refresh-replit-cookies.js`.
+- **Si un Repl sale mal**: Borrar y recrear desde cero. No intentar reparar Replits rotos — es más rápido y limpio recrear.
 
 Reiniciar gunicorn:
 find -name '*.pyc' -delete; pkill -f gunicorn; sleep 2; cd /home/runner/workspace && .venv/bin/gunicorn --bind 0.0.0.0:8080 --workers 2 --daemon main:app
