@@ -201,8 +201,6 @@ Odia terminal, no copia código, respuestas cortas, odia repetir, no decir despu
 4. BACKUP OBLIGATORIO — cp archivo archivo.bak ANTES de editar. Rollback en 1 comando.
 5. PENDIENTES PRIMERO — Revisar pendientes de sesiones anteriores antes de features nuevas.
 6. SIMPLE PRIMERO — La solucion mas simple que funcione. Complejidad solo cuando lo simple no alcanza.
-7. PM2 RESTART NUNCA VIA ORACULO — El restart mata workers. Siempre via Claude Code directo.
-8. TAREAS QUE REQUIEREN ZIVON NO VAN POR ARM — ARM no tiene Tailscale. Si la tarea necesita SSH a ZIVON, ejecutar desde ZIVON o Asus.
 
 ---
 
