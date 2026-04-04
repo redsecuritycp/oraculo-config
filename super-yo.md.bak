@@ -152,6 +152,17 @@ Permisos: Administradores:F (Windows en español)
 
 ---
 
+## SSH DESDE ARM (Oracle VPS)
+
+ARM tiene SSH directo a todos los Replits sin depender de ZIVON:
+- Replits accesibles: TutorAI, ClaudeClaw, Oraculo, ISR-web, Ovidio-botvendedor, Dania, Cianbox-Propio, seragro-github, Debitos-Automaticos-Red
+- Keys: replit e id_ed25519 (copiadas de ZIVON)
+- Config: mergeado en ~/.ssh/config de ARM
+- ARM NO depende de ZIVON para ejecutar tareas en Replits
+- ARM NO tiene Tailscale, asi que NO puede llegar a ZIVON ni Asus por SSH
+
+---
+
 ## REGLAS TÉCNICAS WINDOWS
 
 Windows en español: Administradores no Administrators
@@ -201,6 +212,30 @@ Odia terminal, no copia código, respuestas cortas, odia repetir, no decir despu
 4. BACKUP OBLIGATORIO — cp archivo archivo.bak ANTES de editar. Rollback en 1 comando.
 5. PENDIENTES PRIMERO — Revisar pendientes de sesiones anteriores antes de features nuevas.
 6. SIMPLE PRIMERO — La solucion mas simple que funcione. Complejidad solo cuando lo simple no alcanza.
+7. PM2 RESTART NUNCA VIA ORACULO — El restart mata workers. Siempre via Claude Code directo.
+8. TAREAS QUE REQUIEREN ZIVON NO VAN POR ARM — ARM no tiene Tailscale. Si la tarea necesita SSH a ZIVON, ejecutar desde ZIVON o Asus. PERO ARM SI tiene SSH directo a todos los Replits (no necesita ZIVON para eso).
+
+---
+
+## REPLITS - GESTION DESDE ARM (actualizado 4 abril 2026)
+
+ARM es 100% autonoma para gestionar Replits. No depende de ZIVON.
+
+SSH directo: ARM tiene SSH a todos los Replits (TutorAI, ClaudeClaw, Oraculo, ISR-web, Ovidio, Dania, Cianbox-Propio, Debitos-Automaticos-Red, seragro-github, Vendetta). Keys en ~/.ssh/replit.
+
+Config por defecto: Autoscale, 1 vCPU, 0.5 GiB RAM, 1 Max machine, puerto 8080, Public.
+
+Deploy: SOLO con deploy-repl-hybrid.cjs (usa interceptacion GraphQL). Otros scripts de deploy NO funcionan. Ubicacion en ARM: /home/ubuntu/oraculo/tools/replit/deploy-repl-hybrid.cjs. Requiere cookies Replit frescas y Playwright+Chromium (ambos instalados en ARM).
+
+Cookies Replit ARM: se refrescan cada 45 min via cron. Si expiran: node replit-login.js.
+
+Puerto: Autoscale SIEMPRE espera puerto 8080. Si el proyecto usa otro puerto, cambiarlo a 8080 antes de deployar.
+
+main.py Python: debe tener load_dotenv('.env.local') al inicio.
+
+Si un Repl sale mal: borrar y recrear, no emparchar.
+
+TODOS los proyectos de Claude.ai deben saber que ARM puede hacer SSH directo a cualquier Replit y deployar sin ZIVON.
 
 ---
 

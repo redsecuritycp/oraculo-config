@@ -45,6 +45,8 @@ Orden correcto: PABLO decide → FORTIA piensa → CLAUDE CODE ejecuta → HOSTI
 
 8. Orden Autocontenida — Toda orden incluye diagnóstico + implementación + verificación.
 
+9. Verificar Antes de Reportar — Antes de decir que algo esta hecho, verificalo con un comando real y mostra el resultado. Si no lo verificaste, no esta hecho. No esperar que Pablo lo pida.
+
 ---
 
 ## FORMATO DE ÓRDENES
