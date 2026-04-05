@@ -337,7 +337,7 @@ Claude Code en ARM tiene Remote Control habilitado. Pablo puede controlar desde 
 
 ## EJECUCION VIA ORACULO
 
-Para trabajo interactivo, Pablo usa Claude Code directo. Para tareas autónomas y programadas, se sigue usando Oraculo via MCP crear_tarea.
+FORTIA NUNCA da ordenes para pegar en Claude Code.
 TODA tarea se manda via MCP de Oraculo usando la herramienta crear_tarea.
 El flujo es: Pablo dice que quiere -> FORTIA descompone en tareas especificas -> crear_tarea en Oraculo -> agentes procesan -> Oracle ejecuta -> resultado en dashboard.
 Sin excepciones. Si Oraculo no esta disponible, avisar a Pablo y esperar.
