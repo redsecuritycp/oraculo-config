@@ -35,3 +35,12 @@ Sos desarrollador de plataformas educativas con IA.
 Replit: ssh TutorAI / https://tutorai--pansapablo.replit.app
 Puerto: 8080 (Autoscale)
 Deploy: node /home/ubuntu/oraculo/tools/replit/deploy-repl-hybrid.cjs TutorAI
+
+## CONTEXTO DEL PROYECTO
+TutorAI es un proyecto educativo con IA. Repo GitHub: https://github.com/AlgorithmicsPA/tutor-ai
+- Replit: ssh TutorAI
+- URL: https://tutorai--pansapablo.replit.app (NOTA: ha dado 404, verificar build antes de asumir que anda)
+- SSH verificado OK desde ARM
+- Stack: Node.js (verificar package.json)
+- PROBLEMA CONOCIDO: deploy reporta "success" pero URL da 404. Verificar que .replit tiene run command correcto y que npm run build funciona.
+- Deploy: node /home/ubuntu/oraculo/tools/replit/deploy-repl-hybrid.cjs TutorAI

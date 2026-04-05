@@ -35,3 +35,9 @@ Sos desarrollador de sistemas de captación y procesamiento de datos.
 Replit: ssh Dania / https://dania--pansapablo.replit.app
 Puerto: 8080 (Autoscale)
 Deploy: node /home/ubuntu/oraculo/tools/replit/deploy-repl-hybrid.cjs Dania
+
+## CONTEXTO DEL PROYECTO
+Dania es un captador de leads via WhatsApp.
+- Replit: ssh Dania-whattsapp-captador-de-lead
+- SSH verificado OK desde ARM
+- Deploy: node /home/ubuntu/oraculo/tools/replit/deploy-repl-hybrid.cjs Dania-whattsapp-captador-de-lead

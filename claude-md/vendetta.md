@@ -34,3 +34,9 @@ Sos desarrollador de sistemas de gestión y seguimiento.
 ## STACK
 Proyecto local en ARM o Replit según configuración.
 Puerto: 8080
+
+## CONTEXTO DEL PROYECTO
+Vendetta.
+- Replit: ssh Vendetta
+- NOTA: tiene RequestTTY yes en SSH config que interfiere con comandos no-interactivos. Para ejecutar comandos, usar ssh -T Vendetta 'comando'
+- Deploy: node /home/ubuntu/oraculo/tools/replit/deploy-repl-hybrid.cjs Vendetta

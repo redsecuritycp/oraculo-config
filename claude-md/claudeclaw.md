@@ -39,3 +39,28 @@ Telegram: polling
 Secrets: https://claude-claw.replit.app/secrets
 NOTA: ClaudeClaw corre en ZIVON, no en ARM. Para editar archivos de ClaudeClaw, usar ssh zivon.
 IMPORTANTE: ARM no tiene Tailscale. Si necesitás SSH a ZIVON, avisá que no es posible desde ARM directamente.
+
+## CONTEXTO DEL PROYECTO
+ClaudeClaw es el bot de WhatsApp/Telegram que corre SOLO en ZIVON.
+- Código: C:\Users\pansa\OneDrive\claudeclaw\ en ZIVON
+- PM2 procesos: claudeclaw, security-agent, client-monitor
+- WhatsApp: Baileys (SIM separada de Pablo personal)
+- Telegram: polling
+- API HTTP: puerto 3847 en ZIVON
+- Secrets: https://claude-claw.replit.app/secrets (con header X-Secret-Key)
+- Parser de scheduling: reescrito abril 2026 para español argentino natural
+- Cookies Replit: refresh cada 45 min con refresh-replit-cookies.js (liviano, no Playwright)
+- Gmail OAuth: tokens en google-calendar-tokens.json, renovar con calendar-auth.js si invalid_grant
+- Macro poll: silenciado (Replit BIEmpresas caído, no crítico)
+- Security Agent: whitelist incluye OpenWebUI y ReconnectMCP
+- Deploy ClaudeClaw Replit: node cli/deploy-repl-hybrid.cjs ClaudeClaw (SESSION_SECRET debe estar en .env.local)
+- IMPORTANTE: main.py de Replits Python debe tener load_dotenv('.env.local') al startup
+- IMPORTANTE: ARM no tiene Tailscale, no puede SSH a ZIVON directamente
+
+## LECCIONES HISTÓRICAS
+- El parser de scheduling original solo aceptaba "domingo a las 10" — reescrito para variantes naturales
+- El botón Republish del header (y=6) NO funciona — solo el verde (y=92)
+- Replit Cloud Run no lee .env.local — hay que forzar load_dotenv en main.py
+- Playwright es overkill para refresh de cookies — fetch() cada 45 min alcanza
+- schtasks desde SSH Git Bash convierte flags en rutas — usar CMD elevado via RDP
+- WhatsApp de ClaudeClaw y Pablo personal son SIM separadas — ClaudeClaw NO ve mensajes personales

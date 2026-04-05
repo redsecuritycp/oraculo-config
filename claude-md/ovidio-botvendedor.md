@@ -35,3 +35,11 @@ Sos desarrollador de bots de ventas con IA conversacional.
 Replit: ssh Ovidio-botvendedor / https://ovidio-botvendedor--pansapablo.replit.app
 Puerto: 8080 (Autoscale)
 Deploy: node /home/ubuntu/oraculo/tools/replit/deploy-repl-hybrid.cjs Ovidio-botvendedor
+
+## CONTEXTO DEL PROYECTO
+Ovidio es un bot vendedor.
+- Replit: ssh Ovidio-botvendedor
+- URL: https://ovidio-botvendedor--pansapablo.replit.app
+- SSH verificado OK desde ARM
+- Cloudflare de Replit ha bloqueado deploys por Playwright headless — si falla, usar --no-headless o esperar
+- Deploy: node /home/ubuntu/oraculo/tools/replit/deploy-repl-hybrid.cjs Ovidio-botvendedor

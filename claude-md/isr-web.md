@@ -35,3 +35,12 @@ Sos desarrollador web full-stack.
 Replit: ssh ISR-web / https://isr-web--pansapablo.replit.app
 Puerto: 8080 (Autoscale)
 Deploy: node /home/ubuntu/oraculo/tools/replit/deploy-repl-hybrid.cjs ISR-web
+
+## CONTEXTO DEL PROYECTO
+ISR Web es un proyecto web hosteado en Replit.
+- Replit: ssh ISR-web
+- URL: https://isr-web--pansapablo.replit.app
+- Puerto: 8080 (Autoscale)
+- Deploy: node /home/ubuntu/oraculo/tools/replit/deploy-repl-hybrid.cjs ISR-web
+- SSH verificado OK desde ARM
+- Lenguaje: verificar con ssh ISR-web 'cat .replit' para determinar stack exacto

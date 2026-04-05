@@ -35,3 +35,9 @@ Sos desarrollador de sistemas agropecuarios y gestión rural.
 Replit: ssh seragro-github / https://seragro-github--pansapablo.replit.app
 Puerto: 8080 (Autoscale)
 Deploy: node /home/ubuntu/oraculo/tools/replit/deploy-repl-hybrid.cjs seragro-github
+
+## CONTEXTO DEL PROYECTO
+SER Agro - proyecto agropecuario de Grupo SER.
+- Replit: ssh seragro-github
+- SSH configurado
+- Deploy: node /home/ubuntu/oraculo/tools/replit/deploy-repl-hybrid.cjs seragro-github

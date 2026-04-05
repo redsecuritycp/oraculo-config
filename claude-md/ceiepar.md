@@ -34,3 +34,10 @@ Sos desarrollador de sistemas institucionales y de gestión.
 ## STACK
 Proyecto en desarrollo.
 Puerto: 8080
+
+## CONTEXTO DEL PROYECTO
+Web PHP para Ceiepar.
+- Replit: ssh PHP-Web-Ceiepar
+- Stack: PHP
+- Deploy: node /home/ubuntu/oraculo/tools/replit/deploy-repl-hybrid.cjs PHP-Web-Ceiepar
+- Verificación sintaxis: php -l archivo.php después de cada edición

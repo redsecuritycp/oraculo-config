@@ -35,3 +35,9 @@ Sos desarrollador de sistemas de débitos automáticos y pagos.
 Replit: ssh Debitos-Automaticos-Red / https://debitos-automaticos-red--pansapablo.replit.app
 Puerto: 8080 (Autoscale)
 Deploy: node /home/ubuntu/oraculo/tools/replit/deploy-repl-hybrid.cjs Debitos-Automaticos-Red
+
+## CONTEXTO DEL PROYECTO
+Débitos Automáticos para Red Security.
+- Replit: ssh Debitos-Automaticos-Red
+- SSH configurado
+- Deploy: node /home/ubuntu/oraculo/tools/replit/deploy-repl-hybrid.cjs Debitos-Automaticos-Red

@@ -48,3 +48,26 @@ CLAUDE.md — este archivo (contexto para Claude Code executor)
 task_queue.json — cola de tareas
 task_history.json — historial
 config.json — configuración
+
+## CONTEXTO DEL PROYECTO
+Oraculo es el sistema de orquestación autónomo de Pablo. Recibe tareas via MCP, las ejecuta con Claude Code CLI (OAuth Max, $0), reporta por dashboard + Telegram.
+- Migración completa: v10 (7 agentes, $7/día) → v11 (1 Claude Code CLI, $0/día) — 1 abril 2026
+- Pipeline anterior de 713 líneas reemplazado por 160 líneas
+- Auto-scale: hasta 4 workers paralelos, psutil monitorea CPU/RAM
+- Model routing: Opus para critical/high, Sonnet para medium/low
+- Auto-retry: 3 intentos con error como contexto
+- OAuth: autenticado una vez con claude auth login, permanente
+- Karpathy Loop: corre cada hora, auto-repair si success rate < 70%
+- Perfil cognitivo Pablo: 95% confianza, 1.3M entries, se regenera 3AM
+- Success rate actual: ~60% — las auto-fix tasks fallan en loop (problema conocido)
+- NUNCA hacer PM2 restart como parte de una tarea (mata workers)
+- PM2 restart siempre con: nohup bash -c 'sleep 3 && pm2 restart oraculo --update-env' &
+
+## LECCIONES HISTÓRICAS
+- Guardian en v10 bloqueaba tareas legítimas — eliminado en v11
+- QA en v10 repetía 4 veces el mismo error — reemplazado por auto-retry con contexto
+- Operator en v10 no podía editar archivos — Claude Code tiene str_replace real
+- Ngrok se caía periódicamente — reemplazado por DuckDNS + Nginx + Certbot en ARM
+- Tailscale en Oracle Cloud rompió iptables — NUNCA instalar Tailscale en Oracle
+- OCI CLI con instance-agent es el recovery más confiable cuando SSH se bloquea
+- client_max_body_size 50M en nginx desbloqueó sync de captadores (perfil cognitivo subió a 95%)

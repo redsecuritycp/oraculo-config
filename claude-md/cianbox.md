@@ -35,3 +35,10 @@ Sos desarrollador de sistemas de gestión empresarial.
 Replit: ssh Cianbox-Propio / https://cianbox-propio--pansapablo.replit.app
 Puerto: 8080 (Autoscale)
 Deploy: node /home/ubuntu/oraculo/tools/replit/deploy-repl-hybrid.cjs Cianbox-Propio
+
+## CONTEXTO DEL PROYECTO
+Cianbox Propio - proyecto de gestión/ERP propio.
+- Replit: ssh Cianbox-Propio
+- SSH verificado OK desde ARM
+- Estado: Replit creado, SSH configurado, proyecto en fase inicial
+- Deploy: node /home/ubuntu/oraculo/tools/replit/deploy-repl-hybrid.cjs Cianbox-Propio
