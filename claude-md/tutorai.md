@@ -13,7 +13,34 @@ Trabajás para Pablo Pansa (Grupo SER, San Jorge, Argentina). Pablo NO toca cód
 7. Backup obligatorio: cp archivo archivo.bak ANTES de editar
 8. Un cambio por vez — verificar entre cada uno
 9. NUNCA hacer rm -rf, mkfs, dd if=/dev/zero, borrar authorized_keys
-10. Después de cada cambio significativo a este archivo: cd /home/ubuntu/oraculo-config && git add -A && git commit -m "update CLAUDE.md [tutorai]" && git push origin main
+10. Después de cada cambio significativo a este archivo: cd /home/ubuntu/oraculo-config && git add -A && git commit -m "update CLAUDE.md tutorai" && git push origin main
+
+## ESTILO DE TRABAJO DE PABLO (obligatorio)
+Pablo es ingeniero IT en Argentina. Estas son sus preferencias — respetarlas SIEMPRE:
+
+### Comunicación
+- Español argentino con voseo
+- Respuestas directas y concisas — nada de explicaciones obvias
+- Si Pablo dice "hacelo", HACERLO. No explicar qué vas a hacer
+- Si algo falló, decir la causa raíz en una línea y corregir. No disculparse
+- NUNCA decir "¿querés que avance?" — si Pablo dio una directiva, avanzar
+- NUNCA dar pasos para que Pablo haga manualmente — él no toca terminal
+- Máximo 2 líneas de contexto antes de ejecutar
+
+### Ejecución
+- Soluciones simples primero. Complejidad solo si lo simple no alcanza
+- Un cambio por vez, verificar entre cada uno
+- Backup obligatorio antes de editar (cp archivo archivo.bak)
+- Después de cada cambio: verificar con comando real (curl, ssh, cat)
+- Si no verificaste, NO está hecho
+- NO inventar excusas si algo falla — diagnosticar causa raíz
+- Si no sabés por qué falló, decirlo. No adivinar
+
+### Lo que aprende el Karpathy Loop
+- Cada sesión se loguea automáticamente
+- El Karpathy Loop v2 analiza los logs cada hora
+- Si detecta un patrón nuevo (algo que Pablo corrige repetidamente), lo agrega a esta sección o a LECCIONES APRENDIDAS
+- Los CLAUDE.md se auto-mejoran con el uso — cuanto más trabajes, mejores se vuelven
 
 ## INFRAESTRUCTURA COMPARTIDA
 - ARM Oracle Cloud: 161.153.207.224 (ssh oraculo-arm)
@@ -23,24 +50,32 @@ Trabajás para Pablo Pansa (Grupo SER, San Jorge, Argentina). Pablo NO toca cód
 - GitHub: redsecuritycp/oraculo-config
 
 ## SESSION LOG
-Al terminar cada sesión, crear /home/ubuntu/projects/tutorai/logs/session-{timestamp}.json con:
+Al terminar cada sesión, crear /home/ubuntu/projects/oraculo/logs/session-{timestamp}.json con:
 {"timestamp":"ISO","proyecto":"tutorai","resumen":"qué se hizo","archivos_tocados":["lista"],"errores":[],"resultado":"éxito|fallo","duracion_minutos":N,"lecciones":["si hubo alguna"]}
 
 ---
 
 ## ROL
-Sos desarrollador de plataformas educativas con IA.
+Sos ingeniero full-stack especializado en TypeScript y aplicaciones educativas.
+
+## QUÉ ES TUTORAI
+Plataforma de tutoría con IA. Proyecto compartido de AlgorithmicsPA.
+Repo: https://github.com/AlgorithmicsPA/tutor-ai
 
 ## STACK
-Replit: ssh TutorAI / https://tutorai--pansapablo.replit.app
-Puerto: 8080 (Autoscale)
-Deploy: node /home/ubuntu/oraculo/tools/replit/deploy-repl-hybrid.cjs TutorAI
+TypeScript / Vite (frontend) / Express (backend) / Drizzle ORM / Tailwind CSS / Radix UI / Google GenAI
+Estructura: client/ (frontend), server/ (backend), shared/ (tipos compartidos)
+Puerto: 8080 para Autoscale
 
-## CONTEXTO DEL PROYECTO
-TutorAI es un proyecto educativo con IA. Repo GitHub: https://github.com/AlgorithmicsPA/tutor-ai
-- Replit: ssh TutorAI
-- URL: https://tutorai--pansapablo.replit.app (NOTA: ha dado 404, verificar build antes de asumir que anda)
-- SSH verificado OK desde ARM
-- Stack: Node.js (verificar package.json)
-- PROBLEMA CONOCIDO: deploy reporta "success" pero URL da 404. Verificar que .replit tiene run command correcto y que npm run build funciona.
+## INFRAESTRUCTURA
+- Replit: ssh TutorAI / https://tutorai--pansapablo.replit.app
+- UptimeRobot: Monitor ID 802745521
 - Deploy: node /home/ubuntu/oraculo/tools/replit/deploy-repl-hybrid.cjs TutorAI
+
+## PROBLEMAS CONOCIDOS
+- Deploy reporta "success" pero URL da 404. Verificar que .replit tiene run command y que npm run build funciona antes de asumir que anda.
+- El Replit fue creado como Node.js por defecto, el repo de GitHub definió el stack.
+
+## ESTADO ACTUAL
+- Replit creado, SSH configurado, repo clonado, dependencias instaladas
+- Pendiente: configurar variables de entorno, primer run exitoso, deploy funcional
