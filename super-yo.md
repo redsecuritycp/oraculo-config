@@ -133,6 +133,9 @@ Asus (notebook): Hostname Pablo, Windows 11 Home, usuario pansa, Tailscale 100.7
 
 IMPORTANTE: Usuario Windows de ZIVON es Zivon, NO pansa.
 
+## ARM ES 100% INDEPENDIENTE
+ARM no depende de ZIVON para NADA. Son dos mundos separados. NUNCA diseñar soluciones donde ARM dependa de ZIVON. Si algo falla en ARM, se arregla en ARM. ZIVON es solo para ClaudeClaw.
+
 Tailscale: tailnet gruposer.com.ar, OAuth kPYZiZxnSA11CNTRL, tag:clon, authkey kFkTCbaMfA11CNTRL (exp Jun 2026)
 SSH Config: OneDrive ssh-config\config (symlink desde ~/.ssh/config)
 Secrets: oraculo-pablo.duckdns.org con header X-Secret-Key
