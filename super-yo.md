@@ -3,7 +3,7 @@
 **Este documento es la fuente única de verdad sobre cómo trabaja Pablo.**
 Todos los proyectos de Claude.ai lo leen al inicio de cada conversación via web_fetch.
 Vive en: oraculo-pablo.duckdns.org/super-yo
-Última actualización: 2026-03-19
+Última actualización: 2026-04-06
 
 ---
 
@@ -72,31 +72,26 @@ PM2: pm2 status + pm2 logs. SSH config: revisar. Task Scheduler: schtasks /query
 
 ## DEPLOY DE REPLITS
 
-Deploy se hace via Playwright desde ZIVON. Nunca manual si se puede evitar.
-Script principal de deploy: deploy-repl-hybrid.cjs (desde ZIVON). Es el ÚNICO script de deploy válido.
+Deploy se hace desde ARM (Oracle VPS) directo. ARM es autónoma, no depende de ZIVON.
+Script principal: deploy-repl-hybrid.cjs (interceptación GraphQL). Es el ÚNICO script de deploy válido.
 
 ### Herramienta MCP disponible:
 - deploy_replit: permite hacer deploy de cualquier Replit via MCP desde Oraculo
 
-### Scripts de Replit (en Oracle: /home/ubuntu/oraculo/tools/replit/):
+### Scripts de Replit (en ARM: /home/ubuntu/oraculo/tools/replit/):
 - create-repl.js (crear Replit nuevo)
-- deploy-repl-hybrid.cjs (deploy via Playwright desde ZIVON)
+- deploy-repl-hybrid.cjs (deploy desde ARM directo)
 - run-replit.js (ejecutar Replit)
 - refresh-replit-cookies.js (renovar sesión automáticamente cada 45 minutos)
 - Cookies en: /home/ubuntu/oraculo/tools/replit/replit-session.json
 
-También disponible en ZIVON: C:\Users\pansa\OneDrive\claudeclaw\
-Sesión guardada en .claudeclaw/local/replit-session.json
-
 Si el deploy falla por sesión expirada:
-1. En Oracle ejecutar: node replit-login.js (abre Chromium visible, Pablo se loguea una vez)
+1. En ARM ejecutar: node replit-login.js (abre Chromium visible, Pablo se loguea una vez)
 2. Después ejecutar: node deploy-repl-hybrid.cjs (deploy normal)
 
-La sesión se renueva automáticamente cada 45 minutos via refresh-replit-cookies.js. Los scripts usan replit-browser.js como módulo compartido con anti-detección de Cloudflare (userAgent, shims window.chrome, navigator.plugins, navigator.languages, webdriver=false).
+La sesión se renueva automáticamente cada 45 minutos via cron en ARM (refresh-replit-cookies.js). Los scripts usan replit-browser.js como módulo compartido con anti-detección de Cloudflare.
 
-Si Cloudflare bloquea el refresh → ClaudeClaw avisa a Pablo por WhatsApp. Solución: correr node replit-login.js manualmente (una sola vez).
-
-NUNCA pedir a Pablo que haga deploy manual desde la UI de Replit si se puede evitar.
+NUNCA pedir a Pablo que haga deploy manual desde la UI de Replit.
 
 ---
 
@@ -114,7 +109,7 @@ Toda Replit nueva se crea con esta configuración estándar:
 | Visibility | Public |
 
 ### Reglas de Replits:
-- **Deploy**: Solo con `deploy-repl-hybrid.cjs` desde ZIVON. No usar otro script.
+- **Deploy**: Solo con `deploy-repl-hybrid.cjs` desde ARM. No usar otro script.
 - **main.py (Python)**: Siempre cargar `.env.local` con `dotenv`. Ejemplo: `from dotenv import load_dotenv; load_dotenv('.env.local')`
 - **Cookies**: Se refrescan cada 45 minutos automáticamente via `refresh-replit-cookies.js`.
 - **Si un Repl sale mal**: Borrar y recrear desde cero. No intentar reparar Replits rotos — es más rápido y limpio recrear.
@@ -181,7 +176,7 @@ Crear: node create-repl.js Nombre [python|node]
 Eliminar: confirmación obligatoria
 Reiniciar: por SSH (pkill + gunicorn o pm2 restart)
 NUNCA decir clickeá Run/Stop de Replit
-Deploy: Claude Code hace deploy via Playwright desde ZIVON. Pablo no toca la UI de Replit para deploy.
+Deploy: Claude Code hace deploy desde ARM directo (deploy-repl-hybrid.cjs). Pablo no toca la UI de Replit para deploy.
 
 Replits configurados: Ovidio, Dania, PHP-Web-Ceiepar, seragro-github, Vendetta, ISR-WEB, ClaudeClaw, Debitos-Automaticos-Red, servistecnicosRED, Oraculo
 
@@ -309,7 +304,7 @@ Endpoint: https://oraculo-pablo.duckdns.org/empresa/{company_id}/clone/{nombre}/
 
 /clones, /clones/{n}/profile, /clones/{n}/stats redirigen a /empresa/oraculo/...
 
-ORACULO v9.0 — Pablo Pansa — Grupo SER — Marzo 2026
+ORACULO v11.0 — Pablo Pansa — Grupo SER — Abril 2026
 
 ## CLAUDE CODE DIRECTO (método principal desde Abril 2026)
 
