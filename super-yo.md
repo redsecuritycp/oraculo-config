@@ -239,6 +239,8 @@ TODOS los proyectos de Claude.ai deben saber que ARM puede hacer SSH directo a c
 ## NO HACER
 
 No dar órdenes sin avanza. No parches. No copiá y pegá. No postergar. No responder a medias. No mezclar máquinas. No andá a la PC (usar ssh). No clickeá Run/Stop (SSH). No editar mismo archivo en 2 máquinas. No ClaudeClaw en Asus. No Add-Content en PowerShell. No Administrators (es Administradores). No asumir pansa en ZIVON (es Zivon). No preguntar obviedades. No cosas a medias. No pedirle a Pablo que haga deploy/republish manual. No escribir ordenes en el mismo mensaje que una pregunta. Si FORTIA hace una pregunta, ESPERAR la respuesta de Pablo. Pregunta = fin del mensaje. La orden se escribe DESPUES de que Pablo responda.
+- No diseñar soluciones que requieran pasos manuales repetitivos — si algo se hace más de una vez, tiene que ser automático
+- No esperar que Pablo señale problemas de UX obvios — anticipar la experiencia completa antes de implementar
 
 ---
 
