@@ -311,9 +311,33 @@ Endpoint: https://oraculo-pablo.duckdns.org/empresa/{company_id}/clone/{nombre}/
 
 ORACULO v9.0 — Pablo Pansa — Grupo SER — Marzo 2026
 
+## CLAUDE CODE DIRECTO (método principal desde Abril 2026)
+
+Pablo trabaja directamente con Claude Code en ARM. No necesita pasar por Claude.ai ni por Oraculo MCP para su trabajo interactivo.
+
+### Flujo
+1. Pablo abre shortcut en Asus (oraculo-cc.bat) o SSH manual a ARM
+2. Escribe: cc oraculo (o cc isr-web, cc tutorai, etc.)
+3. Claude Code abre en el directorio del proyecto con CLAUDE.md cargado
+4. Pablo habla naturalmente, Claude Code ejecuta todo
+5. Session log se genera automáticamente cada hora
+6. Karpathy Loop v2 analiza y mejora CLAUDE.md cada hora
+7. Cambios se pushean a GitHub automáticamente
+
+### Remote Control
+Claude Code en ARM tiene Remote Control habilitado. Pablo puede controlar desde la app de Claude en el celular.
+
+### Oraculo sigue activo para:
+- Tareas autónomas (crons, Karpathy Loop, watchdog)
+- Dashboard web (https://oraculo-pablo.duckdns.org/dashboard)
+- Historial y notificaciones Telegram
+- Clonación digital
+
+---
+
 ## EJECUCION VIA ORACULO
 
-FORTIA NUNCA da ordenes para pegar en Claude Code.
+Para trabajo interactivo, Pablo usa Claude Code directo. Para tareas autónomas y programadas, se sigue usando Oraculo via MCP crear_tarea.
 TODA tarea se manda via MCP de Oraculo usando la herramienta crear_tarea.
 El flujo es: Pablo dice que quiere -> FORTIA descompone en tareas especificas -> crear_tarea en Oraculo -> agentes procesan -> Oracle ejecuta -> resultado en dashboard.
 Sin excepciones. Si Oraculo no esta disponible, avisar a Pablo y esperar.

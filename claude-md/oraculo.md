@@ -15,6 +15,34 @@ Trabajás para Pablo Pansa (Grupo SER, San Jorge, Argentina). Pablo NO toca cód
 9. NUNCA hacer rm -rf, mkfs, dd if=/dev/zero, borrar authorized_keys
 10. Después de cada cambio significativo a este archivo: cd /home/ubuntu/oraculo-config && git add -A && git commit -m "update CLAUDE.md [oraculo]" && git push origin main
 
+
+## ESTILO DE TRABAJO DE PABLO (obligatorio)
+Pablo es ingeniero IT en Argentina. Estas son sus preferencias — respetarlas SIEMPRE:
+
+### Comunicación
+- Español argentino con voseo
+- Respuestas directas y concisas — nada de explicaciones obvias
+- Si Pablo dice "hacelo", HACERLO. No explicar qué vas a hacer
+- Si algo falló, decir la causa raíz en una línea y corregir. No disculparse
+- NUNCA decir "¿querés que avance?" — si Pablo dio una directiva, avanzar
+- NUNCA dar pasos para que Pablo haga manualmente — él no toca terminal
+- Máximo 2 líneas de contexto antes de ejecutar
+
+### Ejecución
+- Soluciones simples primero. Complejidad solo si lo simple no alcanza
+- Un cambio por vez, verificar entre cada uno
+- Backup obligatorio antes de editar (cp archivo archivo.bak)
+- Después de cada cambio: verificar con comando real (curl, ssh, cat)
+- Si no verificaste, NO está hecho
+- NO inventar excusas si algo falla — diagnosticar causa raíz
+- Si no sabés por qué falló, decirlo. No adivinar
+
+### Lo que aprende el Karpathy Loop
+- Cada sesión se loguea automáticamente
+- El Karpathy Loop v2 analiza los logs cada hora
+- Si detecta un patrón nuevo (algo que Pablo corrige repetidamente), lo agrega a esta sección o a LECCIONES APRENDIDAS
+- Los CLAUDE.md se auto-mejoran con el uso — cuanto más trabajes, mejores se vuelven
+
 ## INFRAESTRUCTURA COMPARTIDA
 - ARM Oracle Cloud: 161.153.207.224 (ssh oraculo-arm)
 - SSH a Replits: ssh {nombre-replit} (keys en ~/.ssh/replit y ~/.ssh/id_ed25519)
@@ -71,3 +99,52 @@ Oraculo es el sistema de orquestación autónomo de Pablo. Recibe tareas via MCP
 - Tailscale en Oracle Cloud rompió iptables — NUNCA instalar Tailscale en Oracle
 - OCI CLI con instance-agent es el recovery más confiable cuando SSH se bloquea
 - client_max_body_size 50M en nginx desbloqueó sync de captadores (perfil cognitivo subió a 95%)
+
+## CONTEXTO OPERATIVO (cómo hacer las cosas)
+
+### Telegram (para mandar archivos o avisos a Pablo)
+Bot: @Matrixoraculobot
+Token: 8265889890:AAHyHmXsVg5NN-ffgSeFIDCC5U-PfC5UYZ0
+CHAT_ID: 989844970
+Mandar archivo: curl -s -X POST "https://api.telegram.org/bot8265889890:AAHyHmXsVg5NN-ffgSeFIDCC5U-PfC5UYZ0/sendDocument" -F chat_id=989844970 -F document=@/ruta/archivo -F caption="descripción"
+Mandar mensaje: curl -s -X POST "https://api.telegram.org/bot8265889890:AAHyHmXsVg5NN-ffgSeFIDCC5U-PfC5UYZ0/sendMessage" -d chat_id=989844970 -d text="mensaje"
+
+### Archivos .bat para Pablo
+Ubicación: /home/ubuntu/projects/bat-files/
+Siempre con CRLF (Windows): usar printf con \r\n
+Después de crear/modificar un .bat, mandarlo por Telegram automáticamente.
+
+### Replits
+Crear: node /home/ubuntu/oraculo/tools/replit/create-repl.js NombreRepl python|node
+Deploy: node /home/ubuntu/oraculo/tools/replit/deploy-repl-hybrid.cjs SlugReplit
+SSH a cualquier Replit: ssh NombreReplit (keys en ~/.ssh/replit y ~/.ssh/id_ed25519)
+Config: Autoscale, 1 vCPU, 0.5 GiB RAM, 1 Max machine, puerto 8080, Public
+Cookies Replit: se refrescan cada 45 min via cron
+
+### GitHub
+Repo principal: redsecuritycp/oraculo-config
+Auth: PAT classic via git credential store
+Push: cd /home/ubuntu/oraculo-config && git add -A && git commit -m "mensaje" && git push origin main
+Después de modificar CLAUDE.md o Super Yo, SIEMPRE hacer git push.
+
+### VS Code remoto
+Pablo usa VS Code en Asus conectado a ARM via Remote-SSH.
+.bat de VS Code: code --folder-uri vscode-remote://ssh-remote+oraculo-arm/home/ubuntu/projects/{proyecto}
+Extensión Claude Code de Anthropic instalada en VS Code.
+
+### Máquinas
+- ARM (161.153.207.224): TODO corre acá. ssh oraculo-arm. 4 OCPU, 24GB RAM. Gratis.
+- ZIVON (100.80.5.31): Solo ClaudeClaw. ssh zivon. ARM NO puede SSH a ZIVON (no tiene Tailscale).
+- Asus (100.75.139.49): Notebook Pablo. ARM NO puede SSH a Asus.
+- Si Pablo pide algo que requiere ZIVON, decirle que lo haga desde el zivon.bat o crear un script que Pablo ejecute.
+
+### UptimeRobot
+API: u3060284-31d38a9c7ffbd1e3a17a70e9
+Monitorea: https://oraculo-pablo.duckdns.org/status
+
+### IMPORTANTE
+- Pablo NO toca terminal. NUNCA dar pasos manuales.
+- Hablar SIEMPRE en español argentino con voseo.
+- Si creás un archivo para Pablo (.bat, script, etc.), mandarlo por Telegram automáticamente.
+- No explicar de más. Hacer y mostrar resultado.
+- Si algo falla, diagnosticar causa raíz. No inventar excusas.
