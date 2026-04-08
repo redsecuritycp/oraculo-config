@@ -68,6 +68,12 @@ Host TutorAI
     Port 22
     IdentityFile ~/.ssh/replit
 
+Host servistecnicosRED
+    HostName c23f0e61-a3bf-4866-b3c7-0adfe545db84-00-37qm4o990ixmm.spock.replit.dev
+    User c23f0e61-a3bf-4866-b3c7-0adfe545db84
+    Port 22
+    IdentityFile ~/.ssh/replit
+
 # ── Wildcard Replit (catch-all para nuevos Repls) ──
 Host *.replit.dev
     Port 22
