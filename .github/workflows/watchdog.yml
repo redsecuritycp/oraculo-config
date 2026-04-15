@@ -1,0 +1,25 @@
+name: ARM Watchdog
+on:
+  schedule:
+    - cron: '*/5 * * * *'
+  workflow_dispatch: {}
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - name: Check ARM
+        run: |
+          HTTP=$(curl -s -o /dev/null -w "%{http_code}" --connect-timeout 10 --max-time 15 "https://oraculo-pablo.duckdns.org/status" || echo "000")
+          echo "HTTP: $HTTP"
+          if [ "$HTTP" != "200" ]; then
+            curl -s -X POST "https://api.telegram.org/bot${{ secrets.TG_TOKEN }}/sendMessage" -d chat_id="${{ secrets.TG_CHAT }}" -d text="🚨 ARM caído (HTTP $HTTP). Intentando restart..." > /dev/null
+            curl -s --max-time 10 "https://oraculo-pablo.duckdns.org/webhook/restart?key=${{ secrets.EMERGENCY_KEY }}" > /dev/null || true
+            sleep 120
+            FINAL=$(curl -s -o /dev/null -w "%{http_code}" --connect-timeout 10 "https://oraculo-pablo.duckdns.org/status" || echo "000")
+            if [ "$FINAL" = "200" ]; then
+              curl -s -X POST "https://api.telegram.org/bot${{ secrets.TG_TOKEN }}/sendMessage" -d chat_id="${{ secrets.TG_CHAT }}" -d text="✅ ARM se recuperó" > /dev/null
+            else
+              curl -s -X POST "https://api.telegram.org/bot${{ secrets.TG_TOKEN }}/sendMessage" -d chat_id="${{ secrets.TG_CHAT }}" -d text="❌ ARM sigue caído. Requiere intervención." > /dev/null
+            fi
+          fi
