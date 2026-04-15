@@ -6,20 +6,76 @@ on:
 jobs:
   check:
     runs-on: ubuntu-latest
-    timeout-minutes: 3
+    timeout-minutes: 8
     steps:
-      - name: Check ARM
+      - name: Check ARM health
+        id: health
         run: |
           HTTP=$(curl -s -o /dev/null -w "%{http_code}" --connect-timeout 10 --max-time 15 "https://oraculo-pablo.duckdns.org/status" || echo "000")
+          echo "http=$HTTP" >> $GITHUB_OUTPUT
           echo "HTTP: $HTTP"
-          if [ "$HTTP" != "200" ]; then
-            curl -s -X POST "https://api.telegram.org/bot${{ secrets.TG_TOKEN }}/sendMessage" -d chat_id="${{ secrets.TG_CHAT }}" -d text="🚨 ARM caído (HTTP $HTTP). Intentando restart..." > /dev/null
-            curl -s --max-time 10 "https://oraculo-pablo.duckdns.org/webhook/restart?key=${{ secrets.EMERGENCY_KEY }}" > /dev/null || true
-            sleep 120
-            FINAL=$(curl -s -o /dev/null -w "%{http_code}" --connect-timeout 10 "https://oraculo-pablo.duckdns.org/status" || echo "000")
-            if [ "$FINAL" = "200" ]; then
-              curl -s -X POST "https://api.telegram.org/bot${{ secrets.TG_TOKEN }}/sendMessage" -d chat_id="${{ secrets.TG_CHAT }}" -d text="✅ ARM se recuperó" > /dev/null
-            else
-              curl -s -X POST "https://api.telegram.org/bot${{ secrets.TG_TOKEN }}/sendMessage" -d chat_id="${{ secrets.TG_CHAT }}" -d text="❌ ARM sigue caído. Requiere intervención." > /dev/null
-            fi
+
+      - name: Soft restart via webhook
+        id: webhook
+        if: steps.health.outputs.http != '200'
+        run: |
+          curl -s -X POST "https://api.telegram.org/bot${{ secrets.TG_TOKEN }}/sendMessage" \
+            -d chat_id="${{ secrets.TG_CHAT }}" \
+            -d text="🚨 ARM caído (HTTP ${{ steps.health.outputs.http }}). Intentando webhook restart..." > /dev/null
+          curl -s --max-time 10 "https://oraculo-pablo.duckdns.org/webhook/restart?key=${{ secrets.EMERGENCY_KEY }}" > /dev/null || true
+          sleep 120
+          FINAL=$(curl -s -o /dev/null -w "%{http_code}" --connect-timeout 10 "https://oraculo-pablo.duckdns.org/status" || echo "000")
+          echo "final=$FINAL" >> $GITHUB_OUTPUT
+          echo "Post-webhook: $FINAL"
+
+      - name: Hard reboot via OCI API
+        if: steps.webhook.outputs.final != '200' && steps.webhook.outputs.final != ''
+        run: |
+          # Instalar OCI CLI
+          pip install oci-cli --quiet 2>/dev/null
+
+          # Configurar credenciales OCI
+          mkdir -p ~/.oci
+          echo "${{ secrets.OCI_PRIVATE_KEY }}" > ~/.oci/oci_api_key.pem
+          chmod 600 ~/.oci/oci_api_key.pem
+
+          cat > ~/.oci/config << EOF
+          [DEFAULT]
+          user=${{ secrets.OCI_USER_OCID }}
+          fingerprint=${{ secrets.OCI_FINGERPRINT }}
+          tenancy=${{ secrets.OCI_TENANCY_OCID }}
+          region=sa-santiago-1
+          key_file=~/.oci/oci_api_key.pem
+          EOF
+          sed -i 's/^          //' ~/.oci/config
+
+          # Notificar
+          curl -s -X POST "https://api.telegram.org/bot${{ secrets.TG_TOKEN }}/sendMessage" \
+            -d chat_id="${{ secrets.TG_CHAT }}" \
+            -d text="🔄 Webhook falló. Ejecutando HARD REBOOT via OCI API..." > /dev/null
+
+          # Ejecutar SOFTRESET (apaga y enciende la VM)
+          oci compute instance action \
+            --instance-id "${{ secrets.ARM_INSTANCE_ID }}" \
+            --action SOFTRESET 2>&1 || true
+
+          # Esperar 3 minutos para que ARM bootee
+          sleep 180
+
+          AFTER=$(curl -s -o /dev/null -w "%{http_code}" --connect-timeout 10 "https://oraculo-pablo.duckdns.org/status" || echo "000")
+          if [ "$AFTER" = "200" ]; then
+            curl -s -X POST "https://api.telegram.org/bot${{ secrets.TG_TOKEN }}/sendMessage" \
+              -d chat_id="${{ secrets.TG_CHAT }}" \
+              -d text="✅ ARM se recuperó después del hard reboot OCI" > /dev/null
+          else
+            curl -s -X POST "https://api.telegram.org/bot${{ secrets.TG_TOKEN }}/sendMessage" \
+              -d chat_id="${{ secrets.TG_CHAT }}" \
+              -d text="❌ ARM sigue caído después del hard reboot (HTTP=$AFTER). Revisar OCI Console." > /dev/null
           fi
+
+      - name: Recovered via webhook
+        if: steps.webhook.outputs.final == '200'
+        run: |
+          curl -s -X POST "https://api.telegram.org/bot${{ secrets.TG_TOKEN }}/sendMessage" \
+            -d chat_id="${{ secrets.TG_CHAT }}" \
+            -d text="✅ ARM se recuperó con webhook restart" > /dev/null
