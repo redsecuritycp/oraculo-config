@@ -56,17 +56,8 @@ Host Oraculo
     Port 22
     IdentityFile ~/.ssh/replit
 
-Host Cianbox-Propio
-    HostName 46886576-226f-474d-ae00-350af27c4cf3-00-2b4dmygxy3i92.picard.replit.dev
-    User 46886576-226f-474d-ae00-350af27c4cf3
-    Port 22
-    IdentityFile ~/.ssh/replit
-
-Host TutorAI
-    HostName 076fa402-d961-40b8-a86d-3756c8f4ea3f-00-1bgdn0sibxm4q.picard.replit.dev
-    User 076fa402-d961-40b8-a86d-3756c8f4ea3f
-    Port 22
-    IdentityFile ~/.ssh/replit
+# Cianbox-Propio → migrado a ARM como crm-grupo-ser (puerto 3002)
+# TutorAI → migrado a ARM (puerto 3001)
 
 Host servistecnicosRED
     HostName c23f0e61-a3bf-4866-b3c7-0adfe545db84-00-37qm4o990ixmm.spock.replit.dev
