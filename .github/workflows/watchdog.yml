@@ -8,12 +8,28 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 8
     steps:
-      - name: Check ARM health
+      - name: Check ARM health (3 intentos, 30s cada uno, 60s entre ellos)
         id: health
         run: |
-          HTTP=$(curl -s -o /dev/null -w "%{http_code}" --connect-timeout 10 --max-time 15 "https://oraculo-pablo.duckdns.org/status" || echo "000")
-          echo "http=$HTTP" >> $GITHUB_OUTPUT
-          echo "HTTP: $HTTP"
+          # 3 checks con 60s de espera entre cada uno, para evitar falsos positivos
+          # por blips transitorios (ej: bombardeo SSH causa lentitud momentánea)
+          # Total: hasta ~4.5 min de gracia antes de considerar ARM caído
+          FINAL_HTTP="200"
+          for i in 1 2 3; do
+            HTTP=$(curl -s -o /dev/null -w "%{http_code}" --connect-timeout 20 --max-time 30 "https://oraculo-pablo.duckdns.org/status" || echo "000")
+            echo "Intento $i: HTTP $HTTP"
+            if [ "$HTTP" = "200" ]; then
+              FINAL_HTTP="200"
+              break
+            fi
+            FINAL_HTTP="$HTTP"
+            if [ "$i" -lt 3 ]; then
+              echo "ARM no responde, esperando 60s antes de reintentar..."
+              sleep 60
+            fi
+          done
+          echo "http=$FINAL_HTTP" >> $GITHUB_OUTPUT
+          echo "HTTP final: $FINAL_HTTP"
 
       - name: Soft restart via webhook
         id: webhook
