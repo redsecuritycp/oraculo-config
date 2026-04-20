@@ -62,11 +62,15 @@ Host Cianbox-Propio
     Port 22
     IdentityFile ~/.ssh/replit
 
+# TutorAI → 100% ARM desde 2026-04-19 (Pablo pidió NO usar más Replit, ni para backup)
+# Código fuente: /home/ubuntu/projects/tutorai/code/
+# Deploy: /home/ubuntu/deployments/tutorai/current/
+# DB: PostgreSQL local (base tutorai en localhost:5432)
+# URL pública: https://tutorai.duckdns.org
 Host TutorAI
-    HostName 076fa402-d961-40b8-a86d-3756c8f4ea3f-00-1bgdn0sibxm4q.picard.replit.dev
-    User 076fa402-d961-40b8-a86d-3756c8f4ea3f
-    Port 22
-    IdentityFile ~/.ssh/replit
+    HostName localhost
+    User ubuntu
+    # Redirige a ARM local — no existe más el Replit de TutorAI
 
 # ── Wildcard Replit (catch-all para nuevos Repls) ──
 Host *.replit.dev

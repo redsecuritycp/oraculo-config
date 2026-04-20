@@ -57,15 +57,7 @@ Host Oraculo
     IdentityFile ~/.ssh/replit
 
 # Cianbox-Propio → migrado a ARM como odoo.gruposer.com.ar (Odoo 18, systemd, puerto 8069). El CRM Node.js original fue reemplazado por Odoo — abril 2026.
-
-# TutorAI → 100% ARM desde 2026-04-19 (Replit descontinuado completamente, no usar ni para backup)
-# Código: /home/ubuntu/projects/tutorai/code/ | Deploy: /home/ubuntu/deployments/tutorai/current/
-# DB: PostgreSQL local tutorai @ localhost:5432 | URL: https://tutorai.duckdns.org | PM2: tutorai (port 3001)
-Host TutorAI
-    HostName localhost
-    User ubuntu
-    IdentityFile ~/.ssh/id_ed25519
-    IdentitiesOnly yes
+# TutorAI → migrado a ARM (puerto 3001)
 
 Host servistecnicosRED
     HostName c23f0e61-a3bf-4866-b3c7-0adfe545db84-00-37qm4o990ixmm.spock.replit.dev
