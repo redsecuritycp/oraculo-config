@@ -61,11 +61,13 @@ Host Oraculo
 # TutorAI → 100% ARM desde 2026-04-19 (Replit descontinuado completamente, no usar ni para backup)
 # Código: /home/ubuntu/projects/tutorai/code/ | Deploy: /home/ubuntu/deployments/tutorai/current/
 # DB: PostgreSQL local tutorai @ localhost:5432 | URL: https://tutorai.duckdns.org | PM2: tutorai (port 3001)
-Host TutorAI
-    HostName localhost
-    User ubuntu
-    IdentityFile ~/.ssh/id_ed25519
-    IdentitiesOnly yes
+# MIGRADO a ARM 2026-04-20 — ya no usar SSH a TutorAI Replit. El proyecto vive en /home/ubuntu/projects/tutorai/code en ARM.
+# Host TutorAI
+#     HostName localhost
+#     User ubuntu
+#     IdentityFile ~/.ssh/id_ed25519
+#     IdentitiesOnly yes
+
 
 Host servistecnicosRED
     HostName c23f0e61-a3bf-4866-b3c7-0adfe545db84-00-37qm4o990ixmm.spock.replit.dev
