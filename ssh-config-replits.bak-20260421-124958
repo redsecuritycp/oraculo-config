@@ -1,0 +1,81 @@
+# ── Proyectos Replit ──
+
+Host Ovidio-botvendedor
+    HostName 0195b669-5d3a-4dcc-b132-c011cfbc65a3-00-2lp4hrkvrengk.kirk.replit.dev
+    User 0195b669-5d3a-4dcc-b132-c011cfbc65a3
+    Port 22
+    IdentityFile ~/.ssh/replit
+
+Host Dania-whattsapp-captador-de-lead
+    HostName 030230a6-2213-4560-84d5-45ab77efc735-00-hkaddjjr8yew.picard.replit.dev
+    User 030230a6-2213-4560-84d5-45ab77efc735
+    Port 22
+    IdentityFile ~/.ssh/replit
+
+Host PHP-Web-Ceiepar
+    HostName 0293827b-1402-4ead-a97d-cd72bcbbc177-00-27cy3ou6isi3y.janeway.replit.dev
+    User 0293827b-1402-4ead-a97d-cd72bcbbc177
+    Port 22
+    IdentityFile ~/.ssh/replit
+
+Host seragro-github
+    HostName 1113836c-a092-40e4-822e-8209a73bf4b2-00-8evqiv5qqpdu.picard.replit.dev
+    User 1113836c-a092-40e4-822e-8209a73bf4b2
+    Port 22
+    IdentityFile ~/.ssh/replit
+
+Host Vendetta
+    HostName 98e559b8-e1f7-4177-819f-0c0db519a844-00-giczjccnys1k.riker.replit.dev
+    User 98e559b8-e1f7-4177-819f-0c0db519a844
+    Port 22
+    IdentityFile ~/.ssh/replit
+    RequestTTY yes
+    RemoteCommand cd /home/runner/workspace && bash
+
+Host ISR-web
+    HostName a3904c4b-843a-42a8-8161-3164a3bfc8e3-00-rm723pnx6b8u.riker.replit.dev
+    User a3904c4b-843a-42a8-8161-3164a3bfc8e3
+    Port 22
+    IdentityFile ~/.ssh/replit
+
+Host Debitos-Automaticos-Red
+    HostName f550b643-7aa2-4a05-a5a7-c3185910cc76-00-2pzhi9uesbknx.spock.replit.dev
+    User f550b643-7aa2-4a05-a5a7-c3185910cc76
+    Port 22
+    IdentityFile ~/.ssh/replit
+
+Host ClaudeClaw
+    HostName 6c2bc244-07e0-4f52-b2fa-bc9c4a2f191b-00-pps29cjimmzn.picard.replit.dev
+    User 6c2bc244-07e0-4f52-b2fa-bc9c4a2f191b
+    Port 22
+    IdentityFile ~/.ssh/replit
+
+Host Oraculo
+    HostName 6b68693c-7070-47e2-81e0-1c197173dbd7-00-1975yjryju4s5.riker.replit.dev
+    User 6b68693c-7070-47e2-81e0-1c197173dbd7
+    Port 22
+    IdentityFile ~/.ssh/replit
+
+# Cianbox-Propio → migrado a ARM como odoo.gruposer.com.ar (Odoo 18, systemd, puerto 8069). El CRM Node.js original fue reemplazado por Odoo — abril 2026.
+
+# TutorAI → 100% ARM desde 2026-04-19 (Replit descontinuado completamente, no usar ni para backup)
+# Código: /home/ubuntu/projects/tutorai/code/ | Deploy: /home/ubuntu/deployments/tutorai/current/
+# DB: PostgreSQL local tutorai @ localhost:5432 | URL: https://tutorai.duckdns.org | PM2: tutorai (port 3001)
+Host TutorAI
+    HostName localhost
+    User ubuntu
+    IdentityFile ~/.ssh/id_ed25519
+    IdentitiesOnly yes
+
+Host servistecnicosRED
+    HostName c23f0e61-a3bf-4866-b3c7-0adfe545db84-00-37qm4o990ixmm.spock.replit.dev
+    User c23f0e61-a3bf-4866-b3c7-0adfe545db84
+    Port 22
+    IdentityFile ~/.ssh/replit
+
+# ── Wildcard Replit (catch-all para nuevos Repls) ──
+Host *.replit.dev
+    Port 22
+    IdentityFile ~/.ssh/replit
+    StrictHostKeyChecking no
+    UserKnownHostsFile /dev/null
