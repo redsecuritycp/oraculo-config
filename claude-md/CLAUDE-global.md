@@ -142,3 +142,57 @@ Proyectos migrados a ARM (abril 2026). Cuando se toque CADA uno, usar la URL ARM
 
 ### SmartScreen Windows
 - Desactivado en el Asus de Pablo (10 abril 2026)
+
+---
+
+## COMPUTER-USE MCP (Mac de Pablo) — lecciones 2026-04-23
+
+Esta sección aplica cuando trabajás con Pablo desde una instancia Claude que tiene **computer-use MCP** habilitado sobre su MacBook (típicamente claude.ai Desktop/web, NO desde RCs de ARM que no tienen computer-use). Reglas para evitar repetir errores ya vividos.
+
+### `request_access` — batchear al inicio, NUNCA a mitad de tarea
+- Pedí **TODAS las apps que vas a necesitar** en UN solo `request_access` al arrancar.
+- Cada call de `request_access` a mitad de tarea tiene alto riesgo de timeout de 60s o de perder los grants anteriores.
+- Aprobar UN diálogo con 5 apps es igual de rápido que aprobar 1.
+- **Batch típico para tareas Mac:** `["Finder", "<bundle ID de la app>", "com.microsoft.edgemac", "com.google.Chrome", "com.apple.Safari"]`.
+
+### `request_access` — el diálogo aparece en el display con focus, NO en el Mac físico
+- Si Pablo está controlando el Mac desde otro dispositivo (iPhone Mirroring, Jump Desktop, TeamViewer), el diálogo sale en el display remoto (celu), no en las pantallas físicas del Mac.
+- **Síntoma:** timeouts consecutivos de `request_access` aunque el bundle ID sea válido.
+- **Mitigación:** si falla 2+ veces seguidas, preguntar *"¿estás controlando el Mac desde otro dispositivo? Si sí, enfocá el Mac físico y reintento"*.
+
+### Centro de Control / Configuración del Sistema — NO granted
+- `request_access` NO acepta "Centro de Control", "Configuración del Sistema", "Ajustes del Sistema" ni sus bundle IDs (`com.apple.controlcenter`, `com.apple.systempreferences`).
+- **Implicancia:** cualquier cosa que viva en Preferencias del Sistema (Focus/No Molestar, Notificaciones, Red, etc.) NO se puede automatizar desde computer-use → handoff al usuario con instrucciones exactas de 3-5 clicks.
+
+---
+
+## CREDENCIALES — NUNCA transcribir del chat sin verificación visual
+
+**Caso real 2026-04-23:** Pablo pasó password por chat como `Red24365!`. La consola Ruijie mostraba `Red24365*` (enmascarada, el `*` era el dot de mask). Claude intentó autenticarse con `Red24365*` literal → auth failed. La correcta era `Red24365!`.
+
+**Regla:** si hay discrepancia entre lo que Pablo dice por chat y lo que se ve en pantalla, **PARAR** y pedir que Pablo:
+1. Haga click al ícono del ojo (reveal password) para ver en claro
+2. Confirme la password literal antes de reintentar
+
+Los `*`, `•`, `●` en pantallas de auth casi siempre son mask de dots, NO el carácter real de la contraseña.
+
+---
+
+## PLAYBOOK: OpenVPN Connect v3 + router Ruijie (Mac)
+
+Router Ruijie (y otros con template clásico de OpenVPN) generan `.ovpn` que el parser estricto de OpenVPN Connect v3 en macOS rechaza con `"Your connection configuration contains unsupported options"`.
+
+### Flow completo:
+1. `request_access` en una sola call: `["Finder", "org.openvpn.client.app"]`
+2. Usuario sube el `.tar` con `etc/openvpn/{client.ovpn,ca.crt,ca.key}`
+3. Extraer tar en sandbox, leer el `.ovpn`
+4. Generar `.ovpn` limpio en `mnt/outputs/client_oc.ovpn` **sin las 7 directivas problemáticas**, preservando `<ca>`:
+   - **Directivas a quitar:** `log <path>`, `status <path>`, `mute <n>`, `resolv-retry <value>`, `persist-key`, `route-delay <n>`, `explicit-exit-notify <n>`
+   - **Directivas que se preservan:** `dev`, `nobind`, `proto`, `float`, `client`, `remote`, `verb`, `auth`, `auth-nocache`, `reneg-sec`, `remote-cert-tls`, `auth-user-pass`, `cipher`, `<ca>...</ca>`, `<cert>...</cert>`, `<key>...</key>`
+5. Dar link `computer://` para que Pablo baje a Descargas
+6. Doble-click al archivo desde Finder → OpenVPN Connect importa
+7. En el editor del perfil:
+   - Si el perfil solo tiene `<ca>` embebido (no `<cert>`/`<key>`) pero el servidor usa user/pass auth, OpenVPN Connect muestra `"Missing external certificate"` al conectar. **Fix:** desactivar el toggle `Require External Certificate`. No hace falta cargar nada más.
+   - Cargar usuario/password (verificar con reveal del ojo, ver regla de credenciales).
+8. **Save Changes** → **Connect**
+9. Verificar por screenshot: `Securely Connected!` + timer + IP privada asignada + gráfico de tráfico.
