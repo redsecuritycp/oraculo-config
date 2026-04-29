@@ -83,6 +83,29 @@ Para scripts nuevos usar cuenta B por default.
 
 ---
 
+## NOTIFICAR A PABLO POR EMAIL (cualquier sesión Claude)
+
+Pablo NO está siempre mirando el chat de Claude. Para tareas largas (snapshots, deploys, scrapes) o cuando algo falla y el contexto se pierde, **avisarle por mail** siempre que pase alguno de estos casos:
+
+- **Falla bloqueante**: script muere, login no autentica, integración rota, deploy falla 2 veces seguidas
+- **Datos sospechosos**: scraper devolvió 0 productos, precios todos iguales, count drástico vs corrida anterior
+- **Tarea larga terminó** (más de 5 min): snapshot listo, deploy ARM completado, migración finalizada
+
+**Cómo:**
+```bash
+node /home/ubuntu/arm-config/notify-pablo.js "asunto corto" "cuerpo del mensaje"
+# Niveles: error / warning / info (default)
+node /home/ubuntu/arm-config/notify-pablo.js --json '{"subject":"X","body":"Y","level":"error"}'
+# Cuerpo desde stdin para mensajes largos:
+echo "stack trace largo" | node /home/ubuntu/arm-config/notify-pablo.js "deploy fallo"
+```
+
+Manda a `pansapablo@gmail.com` desde `pansapablo@gruposer.com.ar` (Gmail SMTP). Creds en `/home/ubuntu/.config/notify-creds.json` (chmod 600). Subject queda como `[ARM] asunto`, `[ARM ERROR] asunto`, `[ARM WARN] asunto`.
+
+**Cuándo NO avisar:** cada cambio de archivo, diff trivial, pasos intermedios, builds OK normales — Pablo se molesta con ruido. La regla es: si NO le aviso ahora ¿se entera tarde y pierde tiempo? Si la respuesta es sí, mandar mail.
+
+---
+
 ## LECCIONES APRENDIDAS
 
 ### Deploy — LECCIÓN CRÍTICA (ISR-web, abril 2026)
