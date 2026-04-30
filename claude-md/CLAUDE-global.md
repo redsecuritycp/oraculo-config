@@ -10,7 +10,7 @@ Leer siempre:
 
 ## HERRAMIENTAS GLOBALES INSTALADAS (ECC, abril 2026)
 
-Pablo tiene este toolkit cargado en `~/.claude/{skills,agents,commands}/` — disponible en TODOS los proyectos. **Pablo NO va a invocarlas manualmente.** Vos (Claude) tenés que dispararlas vos cuando el contexto matchea. Período de prueba: hasta 2026-05-09. Lo que no se usó se borra (con su OK).
+Pablo tiene este toolkit cargado en `~/.claude/{skills,agents,commands}/` — disponible en TODOS los proyectos. **Pablo NO va a invocarlas manualmente.** Vos (Claude) tenés que dispararlas vos cuando el contexto matchea. Período de prueba: hasta 2026-05-09. Auditoría AUTÓNOMA el 2026-05-10 (cron `ecc-audit-reminder.sh`): cuenta invocaciones reales en transcripts de los últimos 10 días, borra lo que tenga 0 invocaciones, manda Telegram con el reporte. Pablo no decide — solo ve el resultado.
 
 ### Skills (auto-invocables — Claude las dispara cuando matchea el intent)
 
