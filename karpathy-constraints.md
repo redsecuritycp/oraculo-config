@@ -131,6 +131,15 @@ volver a proponer al día siguiente y es ruido.
 
 **Regla:** antes de agregar una `[LECCION]` nueva a un CLAUDE.md de proyecto, `grep` por las keywords principales de la lección en el archivo destino. Si ya hay una lección similar (mismo tema, mismas keywords), **actualizar la existente** en vez de agregar una duplicada. No importa si es una fecha más nueva — la historia de fechas es menos importante que la cantidad de duplicación.
 
+## Alertas Telegram repetitivas — rate-limit obligatorio
+
+**Incidente 2026-04-29:** `self-heal.sh` detectó zombi de RC oraculo por OAuth 403 cada 2 min y mandó la MISMA alerta `🔐 RCs caídas por auth 403` 5 veces seguidas (22:04 → 22:08) sin deduplicar. Pablo lo describió textual: "con una vez estaria. luego me avisas si lo solucionas. sino por ende sé q no se arreglo".
+
+**Regla dura:**
+- **CUALQUIER notify de Telegram que pueda dispararse en loop (cron, watchdog, self-heal)** debe tener cooldown por causa+target (típicamente 1h) — implementado con flag file: `/tmp/<scope>-<causa>-<slug>.flag` + check de `stat -c %Y` antes de mandar.
+- **Cuando la causa se resuelve** (ej: el target vuelve a estar sano), mandar UNA notify de "✅ recuperado" y borrar el flag.
+- **NO proponer** alertas que se mandan cada N min sin cooldown ni notify de "aún caído" recurrentes. Pablo asume que silencio = todavía roto, ruido = nuevo problema.
+
 ## Imágenes Mac→ARM — NO auto-leer al inicio de sesión
 
 - El sync `/home/ubuntu/inbox/claude-images/` recibe capturas del Mac de
