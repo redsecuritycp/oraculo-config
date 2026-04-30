@@ -8,6 +8,46 @@ Leer siempre:
 
 ---
 
+## HERRAMIENTAS GLOBALES INSTALADAS (ECC, abril 2026)
+
+Pablo tiene este toolkit cargado en `~/.claude/{skills,agents,commands}/` — disponible en TODOS los proyectos. **Pablo NO va a invocarlas manualmente.** Vos (Claude) tenés que dispararlas vos cuando el contexto matchea. Período de prueba: hasta 2026-05-09. Lo que no se usó se borra (con su OK).
+
+### Skills (auto-invocables — Claude las dispara cuando matchea el intent)
+
+| Skill | Cuándo usarla (en lo que Pablo te diga) |
+|---|---|
+| `verification-loop` | Cuando hay que verificar un cambio con evidencia ANTES de decir "listo": "verificá", "está bien?", "anda?", "deployaste?", "probaste?" |
+| `terminal-ops` | Cuando hay que ejecutar comandos en repo + mostrar evidencia exacta de qué corrió y qué salió: "corré X", "fijate qué hace", "ver CI", "debug build" |
+| `automation-audit-ops` | Cuando Pablo quiere saber qué jobs/hooks/MCP/crons/wrappers están vivos, rotos, redundantes: "auditá los crons", "qué hooks corren", "está duplicado?", "limpieza de jobs" |
+| `agent-introspection-debugging` | Cuando un agente/RC/proceso falló raro y hay que debug estructurado: "se colgó", "no anda", "qué pasó con la tarea X", "por qué falló" |
+| `autonomous-agent-harness` | Cuando se diseña/ajusta un loop autónomo, cron, scheduled task, agente persistente — relevante para Oraculo, Karpathy Loop, watchdog |
+
+### Agentes (invocá con la herramienta Agent o subagent_type)
+
+| Agente | Cuándo lanzarlo |
+|---|---|
+| `code-explorer` | Para mapear features/módulos en un codebase desconocido — trazá execution paths, arquitectura. Útil al onboarding de un proyecto migrado o repo nuevo |
+| `silent-failure-hunter` | Después de escribir/editar código Python/JS donde puede haber `try/except` que tragan errores, fallbacks raros, retornos vacíos — Pablo dijo: "tareas fallan con 'Unknown error' sin causa" |
+| `harness-optimizer` | Cuando Pablo te pide mejorar Oraculo, ajustar el Karpathy, optimizar agentes, revisar success rate |
+| `python-reviewer` | Después de cambios significativos a `.py` (Oraculo, scripts) — antes de commit, revisá calidad/seguridad/PEP8 |
+
+### Commands (Pablo puede tipearlos con `/`, pero también disparalos vos cuando aplique)
+
+| Comando | Disparalo cuando |
+|---|---|
+| `/quality-gate` | Antes de un push/commit grande: corre lint+typecheck+tests sobre lo modificado |
+| `/harness-audit` | Pablo dice "audita todo", "scorecard", "revisá el harness", "está bien Oraculo" |
+| `/skill-health` | Pablo pregunta qué skills tiene, cuáles usa, dashboard de uso |
+| `/save-session` y `/resume-session` | YA cubierto por `stop-hook-summary.sh` + `session-start-brief.sh`. NO disparar — son redundantes |
+
+### Cómo decidir si disparar una skill o no
+
+- **Disparala** si el intent de Pablo matchea el "Cuándo usarla" de la tabla — incluso si Pablo no la nombra.
+- **No la dispares** solo porque está disponible. Cada skill cargada consume contexto. Si la tarea es simple ("apagame esto"), respondé directo sin invocar skills pesadas.
+- **Si dudás entre dos**, elegí la más específica.
+
+---
+
 ## IMÁGENES DE PABLO — cómo las vas a ver
 
 Pablo trabaja desde el terminal de su MacBook (SSH a ARM). El terminal no pasa clipboard de imagen, así que hay un **bridge automático Mac→ARM**:
