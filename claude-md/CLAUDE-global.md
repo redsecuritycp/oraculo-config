@@ -26,11 +26,21 @@ Pablo tiene este toolkit cargado en `~/.claude/{skills,agents,commands}/` — di
 | `agent-introspection-debugging` | Cuando un agente/RC/proceso falló raro y hay que debug estructurado: "se colgó", "no anda", "qué pasó con la tarea X", "por qué falló" |
 | `autonomous-agent-harness` | Cuando se diseña/ajusta un loop autónomo, cron, scheduled task, agente persistente — relevante para Oraculo, Karpathy Loop, watchdog |
 
+### Skills (Superpowers, obra/superpowers — instaladas 2026-04-30, mismo período de prueba)
+
+| Skill | Cuándo usarla |
+|---|---|
+| `systematic-debugging` | Ante CUALQUIER bug, fallo de tarea, comportamiento raro: ANTES de proponer fix, hacé root-cause-tracing 4-fase. Coincide con la lección "tareas fallan con 'Unknown error'" — fix sin entender = falla |
+| `verification-before-completion` | ANTES de decir "listo", "deployado", "verificado", "anda" — corré evidencia (curl, query, log) y mostrala. Refuerza la regla "deploy = EVIDENCIA" |
+| `requesting-code-review` | Tras completar tarea de Oraculo grande / migración / cambio que toca varios archivos, dispatch al subagente `code-reviewer` antes de declarar listo |
+| `subagent-driven-development` | Para tareas grandes con múltiples pasos independientes (ej: migrar proyecto, auditar todo, refactor amplio): dispatch un subagente fresh por task con review en 2 etapas (spec compliance + quality) |
+
 ### Agentes (invocá con la herramienta Agent o subagent_type)
 
 | Agente | Cuándo lanzarlo |
 |---|---|
 | `code-explorer` | Para mapear features/módulos en un codebase desconocido — trazá execution paths, arquitectura. Útil al onboarding de un proyecto migrado o repo nuevo |
+| `code-reviewer` | Tras completar tarea grande de Oraculo / código nuevo en proyecto: revisa contra plan original + best practices. Lo invoca `requesting-code-review` |
 | `silent-failure-hunter` | Después de escribir/editar código Python/JS donde puede haber `try/except` que tragan errores, fallbacks raros, retornos vacíos — Pablo dijo: "tareas fallan con 'Unknown error' sin causa" |
 | `harness-optimizer` | Cuando Pablo te pide mejorar Oraculo, ajustar el Karpathy, optimizar agentes, revisar success rate |
 | `python-reviewer` | Después de cambios significativos a `.py` (Oraculo, scripts) — antes de commit, revisá calidad/seguridad/PEP8 |
