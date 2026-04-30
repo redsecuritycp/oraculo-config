@@ -10,7 +10,11 @@ Leer siempre:
 
 ## HERRAMIENTAS GLOBALES INSTALADAS (ECC, abril 2026)
 
-Pablo tiene este toolkit cargado en `~/.claude/{skills,agents,commands}/` — disponible en TODOS los proyectos. **Pablo NO va a invocarlas manualmente.** Vos (Claude) tenés que dispararlas vos cuando el contexto matchea. Período de prueba: hasta 2026-05-09. Auditoría AUTÓNOMA el 2026-05-10 (cron `ecc-audit-reminder.sh`): cuenta invocaciones reales en transcripts de los últimos 10 días, borra lo que tenga 0 invocaciones, manda Telegram con el reporte. Pablo no decide — solo ve el resultado.
+Pablo tiene este toolkit cargado en `~/.claude/{skills,agents,commands}/` — disponible en TODOS los proyectos. **Pablo NO va a invocarlas manualmente.** Vos (Claude) tenés que dispararlas vos cuando el contexto matchea.
+
+**Durante el período de prueba (hasta 2026-05-09):** activamente probá CADA skill/agent/command al menos una vez en uso real cuando aparezca un caso aplicable. Si pasan días y todavía no usaste alguna, buscá conscientemente oportunidades de aplicarla en lo que estés haciendo (sin forzar — si no hay caso real, no inventes uno). El objetivo no es "marcar checks" sino conocer en práctica qué hace cada herramienta.
+
+**Auditoría 2026-05-10 9:07 AM** (cron `ecc-audit-reminder.sh`): cuenta invocaciones reales en transcripts de los últimos 10 días y manda Telegram a Pablo con el reporte de USADAS / NO USADAS. **Pablo decide qué borrar** — el script NO borra solo. Cuando responda "borrá X" o "borrá los no usados", recién ahí Claude ejecuta el `rm`.
 
 ### Skills (auto-invocables — Claude las dispara cuando matchea el intent)
 
