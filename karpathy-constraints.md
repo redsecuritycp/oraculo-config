@@ -23,6 +23,10 @@ volver a proponer al día siguiente y es ruido.
 - **NO proponer bajar el límite a 2-3** — Pablo ya pidió explícitamente 5.
   Sugerencias tipo "detectar RCs idle y cerrarlas para bajar a 2-3" violan
   esta regla.
+- **TAMPOCO PROPONER** "RC on-demand para los N proyectos sin RC cuando
+  el dashboard detecta actividad" ni "auto-spawn RC al detectar logs
+  recientes" — todas violan el techo de 5. Karpathy 2026-05-01 propuso
+  esta variante a pesar de la regla; queda explícitamente prohibida.
 
 ## WSGI — NO tocar gunicorn
 
