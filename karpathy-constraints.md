@@ -144,6 +144,26 @@ volver a proponer al día siguiente y es ruido.
 - **Cuando la causa se resuelve** (ej: el target vuelve a estar sano), mandar UNA notify de "✅ recuperado" y borrar el flag.
 - **NO proponer** alertas que se mandan cada N min sin cooldown ni notify de "aún caído" recurrentes. Pablo asume que silencio = todavía roto, ruido = nuevo problema.
 
+## RCs idle — NO preguntar si cerrarlas
+
+**Pablo 2026-05-02:** "es inchabola si no lo quiero activo yo mismo pediria
+apagarlo, si no lo pido es por quiero q estena andando, no quiero de
+ninguno q m joda pero si q anden". El cron `rc-idle-sweep.sh` que
+mandaba Telegram con botones "🔴 Cerrar / ✅ Mantener" cada vez que una
+RC pasaba 4h sin actividad fue eliminado.
+
+**NO proponer:**
+- "Avisar por Telegram cuando RC X lleva N horas idle" (en cualquier framing).
+- "Botón inline para cerrar RC desde el celu cuando se detecta idle".
+- "Cron de cleanup de RCs no usadas".
+- Variantes con notificación + acción del usuario sobre RCs idle.
+
+**SÍ está OK proponer:**
+- Auto-revive silencioso de RCs caídas (claude muerto, cloud worktree
+  colgado en loop). Notify SOLO si el auto-revive falla.
+- Detectores de fallo (auth 403, OOM, loop reconexión) que kill+restart
+  sin pedir input al usuario.
+
 ## Imágenes Mac→ARM — NO auto-leer al inicio de sesión
 
 - El sync `/home/ubuntu/inbox/claude-images/` recibe capturas del Mac de
