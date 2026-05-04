@@ -174,3 +174,12 @@ RC pasaba 4h sin actividad fue eliminado.
 - **NO proponer** "alertar cuando hay imágenes nuevas hace >N min".
 - Regla: Pablo avisa explícitamente ("mirá la imagen", "fijate la nueva",
   etc.) cuando quiere que las leas. Si no dice nada, no tocar el inbox.
+
+## Migraciones masivas Cianbox/Odoo (>1k registros)
+
+- ANTES de full run: validar con muestra `--limit 10 --dry-run`. Si `count_created == 0`, NO seguir.
+- Si `failed/processed > 50%` después de 100 registros → ABORTAR (los scripts deben tener auto-abort built-in).
+- Si TODOS los fallos tienen el mismo síntoma → bug estructural en builder, NO seguir esperando.
+- NO re-lanzar migración sin alinear external_id mapping (`CIAN_P:{id}` en `sale.order.client_order_ref`).
+- Caso real (02/05/2026): `migrate_pedidos.py` corrió 84min sobre 54.441 registros con 100% de fallo.
+  Estos protocolos previenen ese desperdicio.
