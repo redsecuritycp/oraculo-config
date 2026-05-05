@@ -177,7 +177,18 @@ Manda a `pansapablo@gmail.com` desde `pansapablo@gruposer.com.ar` (Gmail SMTP). 
 - Si no tenés credenciales, **DECILO**: "No tengo IP/user/pass del SQL Server, no puedo avanzar"
 - **NUNCA inventar datos o simular una integración** — Pablo perdió días por esto
 
-### Migración de Replits a ARM — LECCIÓN CRÍTICA (TutorAI, abril 2026)
+### Migración de Replits a ARM — LECCIÓN CRÍTICA (TutorAI abr 2026 + servistecnicosRED 04/05/2026)
+
+**REGLA DURA NUEVA (servistecnicosRED 04/05/2026):**
+Si el `.replit` del Repl tiene `postgresql-XX` en `modules` → **la DB Neon es de Replit**, NO independiente. Replit auto-provisiona Neon atado al ciclo de vida del Repl. Si el Repl muere, la DB se va con él.
+- Caso real: `DATABASE_URL=postgresql://...@ep-square-snowflake-...neon.tech` quedó tras la "migración" 20/04 → Repl murió ~04/05 → data productiva de clientes perdida.
+- **OBLIGATORIO antes de declarar migrado:** `bash /home/ubuntu/projects/oraculo/tools/migration-verify.sh <proyecto>` debe devolver exit 0. El script falla si la DB es externa sin whitelist.
+
+**Defensas activas (instaladas 04/05/2026):**
+- `tools/backup-postgres-daily.sh` — pg_dump diario 02:30 de TODAS las DBs locales, retención 14d local + Drive
+- `tools/audit-external-dbs.sh` — diario 05:00. Alerta Telegram si encuentra DB externa no-whitelisted en cualquier proyecto. Cooldown 24h por host.
+- `tools/migration-verify.sh <proj>` — checklist 8 puntos. Si falla → NO BORRAR origen.
+
 Migrar un proyecto a ARM NO es solo mover el código. Checklist OBLIGATORIO:
 1. **Datos**: migrar base de datos completa (usuarios, contenido, progreso). Verificar con `SELECT count(*) FROM users` que los datos llegaron.
 2. **Uploads/media**: copiar videos, imágenes, archivos subidos. Si el Replit tiene `/uploads/`, `/public/videos/`, etc → copiar a ARM.
