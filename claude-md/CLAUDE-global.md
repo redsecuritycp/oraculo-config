@@ -8,6 +8,60 @@ Leer siempre:
 
 ---
 
+## DEPLOY UNIVERSAL CON ROLLBACK — REGLA DURA (2026-05-05)
+
+**TODO proyecto que corra en ARM (existente, nuevo, o migrado) DEBE estar en el sistema de releases versionadas con rollback.** Sin excepciones, salvo las dos infraestructurales (Odoo systemd con `deploy-odoo.sh`, oraculo-tunnel SSH-only).
+
+**Por qué esta regla:** Pablo necesita poder (1) aplicar un cambio y que los usuarios lo vean, (2) si rompe, volver a la versión anterior estable en segundos. Sin releases versionadas, "rollback" = `git revert` + restart manual, lento y riesgoso. Inaceptable.
+
+**Estado al 2026-05-05:** solo 3 proyectos cumplían la regla (tutorai, servistecnicos-red, oraculo). Los 8 restantes corrían PM2 directo del repo, sin releases. Migración en curso este día.
+
+**Cómo se onboardea cualquier proyecto nuevo o que se migra a ARM:**
+```bash
+bash /home/ubuntu/oraculo/tools/onboard-project.sh <nombre> <tipo> <puerto> <dominio> <source>
+# Tipo: node | python | php
+# Source: ssh:NombreReplit | local:/ruta | git:url
+```
+El script crea estructura `deployments/<nombre>/{releases,shared}/`, registra en `registry.json`, configura DuckDNS+Nginx+SSL, y corre el primer deploy. Si todo OK → PM2 apunta a `current` symlink y queda con rollback nativo.
+
+**Flujo operativo después del onboard:**
+```bash
+deploy-arm.sh <proyecto>          # nuevo cambio → release v(N+1) + symlink swap + health check + auto-rollback si falla
+rollback-arm.sh <proyecto>        # vuelve al release anterior en ~5 segundos
+rollback-arm.sh <proyecto> v3     # vuelve a un release específico
+```
+
+**Excepción Odoo:** el código vive en `/opt/odoo/custom-addons/`, gestión por systemd. Para aplicar cambios usar `bash /home/ubuntu/oraculo/tools/deploy-odoo.sh <modulo>` que hace upgrade del módulo + `systemctl restart odoo`. NO mezclar con deploy-arm.sh.
+
+**Anti-regresión (regla para Claude futuro):**
+- Cuando Pablo diga "migrá X a ARM" o "agregá un proyecto nuevo": el primer paso ES `onboard-project.sh`. NUNCA dejar un proyecto corriendo PM2 directo del repo.
+- Si encontrás un proyecto en PM2 con cwd fuera de `/home/ubuntu/deployments/<X>/current`: ese proyecto está en deuda técnica. Avisar a Pablo y migrarlo.
+- Cualquier cambio en producción (edit + restart) DEBE hacerse via `deploy-arm.sh` para que quede el release versionado. Editar el repo + `pm2 restart` está PROHIBIDO salvo emergencia documentada.
+
+---
+
+## AISLAMIENTO ENTRE PROYECTOS — REGLA DURA (2026-05-05)
+
+**Cada RC (Remote Control session) solo puede MODIFICAR archivos dentro de su propio cwd.** Read/Grep/Glob entre proyectos sigue libre — ver sí, tocar no.
+
+Incidente que disparó la regla: rc-isr-web (cwd `/home/ubuntu/projects/isr-web`) editó `/opt/odoo/custom-addons/isr_api_pub/controllers/main.py` — código de Odoo, otro proyecto. Inaceptable.
+
+**Implementación:** hook global `PreToolUse` en `~/.claude/settings.json` → `/home/ubuntu/projects/oraculo/tools/hook-block-cross-project.py`. Aplica automáticamente a todos los RCs presentes y futuros.
+
+**Cubre:**
+- `Edit`, `Write`, `MultiEdit`, `NotebookEdit` con `file_path` fuera del cwd → bloqueado.
+- `Bash` con `rm`, `mv`, `cp`, `tee`, `sed -i`, `>`, `>>`, `dd`, `chmod`, `chown`, `truncate`, `install`, `mkdir`, `rmdir` apuntando a paths fuera del cwd → bloqueado.
+- Excepción de scope: paths bajo `/tmp` y `/var/tmp` (scratch) están permitidos.
+
+**Excepción única — rc-oraculo:** si el cwd es `/home/ubuntu/projects/oraculo` (o legacy `/home/ubuntu/oraculo`), el hook NO bloquea pero emite un AVISO al asistente. Antes de tocar otro proyecto, oraculo tiene que:
+1. Anunciar explícitamente qué proyecto va a modificar y por qué.
+2. Pedir confirmación a Pablo.
+3. Recién ahí ejecutar.
+
+**Si necesitás cambiar otro proyecto desde un RC que no es oraculo:** abrí el RC de ese proyecto, o pedile a rc-oraculo (con permiso de Pablo).
+
+---
+
 ## HERRAMIENTAS GLOBALES INSTALADAS (ECC, abril 2026)
 
 Pablo tiene este toolkit cargado en `~/.claude/{skills,agents,commands}/` — disponible en TODOS los proyectos. **Pablo NO va a invocarlas manualmente.** Vos (Claude) tenés que dispararlas vos cuando el contexto matchea.
