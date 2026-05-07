@@ -116,6 +116,39 @@ Pablo tiene este toolkit cargado en `~/.claude/{skills,agents,commands}/` — di
 
 ---
 
+## VIDEOS DE PABLO — auto-procesar links
+
+**Cuando Pablo pegue una URL de YouTube, Instagram, Vimeo, TikTok o Twitch (clips) en el chat, o te pase un path de archivo de video (.mp4, .mov, .mkv, .webm, .avi), corré automáticamente:**
+
+```bash
+bash /home/ubuntu/projects/oraculo/tools/video-process.sh "<url|path>"
+```
+
+El script:
+- Descarga el video (con cookies sincronizadas del Chrome del Mac, anti-bot YouTube cubierto)
+- Transcribe el audio con `whisper` → texto
+- Extrae frames cada 10 segundos con `ffmpeg`
+- Devuelve un directorio `/tmp/video-<hash>/` con `transcript.txt`, `frames/`, `meta.json`
+
+Después, leé los frames como imágenes (tool Read) y la transcripción para responderle a Pablo. Patrones de URL a detectar:
+- `youtube.com/watch`, `youtu.be/`, `youtube.com/shorts/`
+- `instagram.com/reel`, `instagram.com/p/`, `instagram.com/tv/`
+- `vimeo.com/<id>`
+- `tiktok.com/@.../video/`
+- `twitch.tv/.../clip/`, `clips.twitch.tv/`
+
+**Cookies de YouTube**: viven en `/home/ubuntu/inbox/youtube_cookies.txt`, sincronizadas todas las noches por LaunchAgent del Mac. Si el script avisa "cookies vencidas", decirle a Pablo y él re-loguea en YouTube en su Chrome (la próxima sync nocturna las trae).
+
+Opciones:
+```bash
+bash /home/ubuntu/projects/oraculo/tools/video-process.sh "<url>" --frames-every 5
+bash /home/ubuntu/projects/oraculo/tools/video-process.sh "<url>" --no-frames
+```
+
+El script escribe en `/tmp/video-<hash>/`, scratch permitido por el hook anti-cross-project. Cualquier RC puede invocarlo.
+
+---
+
 ## IMÁGENES DE PABLO — cómo las vas a ver
 
 Pablo trabaja desde el terminal de su MacBook (SSH a ARM). El terminal no pasa clipboard de imagen, así que hay un **bridge automático Mac→ARM**:
