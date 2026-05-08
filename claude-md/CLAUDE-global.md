@@ -132,6 +132,11 @@ Incidente que disparó la regla: rc-isr-web (cwd `/home/ubuntu/projects/isr-web`
 - `Bash` con `rm`, `mv`, `cp`, `tee`, `sed -i`, `>`, `>>`, `dd`, `chmod`, `chown`, `truncate`, `install`, `mkdir`, `rmdir` apuntando a paths fuera del cwd → bloqueado.
 - Excepción de scope: paths bajo `/tmp` y `/var/tmp` (scratch) están permitidos.
 
+**Allowlist por cwd (`ALLOWED_EXTRA_BY_CWD`, agregada 2026-05-08):** algunos proyectos tienen el código repartido entre el repo (en `/home/ubuntu/projects/<X>/`) y otros paths físicos (Odoo addons en `/opt/odoo/custom-addons/`, releases ARM en `/home/ubuntu/deployments/<X>/`). Para esos casos, el hook tiene un dict que permite explícitamente, por cwd, acceso de escritura a paths extra que pertenecen al mismo proyecto lógico. Hoy aplica solo a rc-odoo:
+- `/home/ubuntu/projects/odoo.gruposer.com.ar` → puede escribir también en `/opt/odoo/custom-addons/`, `/opt/odoo/addons-extra/`, `/home/ubuntu/deployments/odoo.gruposer.com.ar/`.
+
+Para sumar otra excepción, editar `ALLOWED_EXTRA_BY_CWD` en `/home/ubuntu/projects/oraculo/tools/hook-block-cross-project.py`. **Importante:** la allowlist es por cwd específico — no se hereda ni se generaliza. Otros RCs siguen bloqueados sobre los paths listados, salvo que se les agregue su propia entry. La excepción de oraculo (warn-only en cualquier path) no se ve afectada.
+
 **Excepción única — rc-oraculo:** si el cwd es `/home/ubuntu/projects/oraculo` (o legacy `/home/ubuntu/oraculo`), el hook NO bloquea pero emite un AVISO al asistente. Antes de tocar otro proyecto, oraculo tiene que:
 1. Anunciar explícitamente qué proyecto va a modificar y por qué.
 2. Pedir confirmación a Pablo.
