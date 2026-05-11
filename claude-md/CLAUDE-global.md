@@ -119,27 +119,42 @@ rollback-arm.sh <proyecto> v3     # vuelve a un release específico
 
 ---
 
-## AISLAMIENTO ENTRE PROYECTOS — REGLA DURA (2026-05-05)
+## AISLAMIENTO ENTRE PROYECTOS — REGLA DURA (2026-05-05, refinada 2026-05-11)
 
-**Cada RC (Remote Control session) solo puede MODIFICAR archivos dentro de su propio cwd.** Read/Grep/Glob entre proyectos sigue libre — ver sí, tocar no.
+**Cada RC solo puede MODIFICAR archivos que pertenecen a SU PROPIO proyecto.** Read/Grep/Glob entre proyectos sigue libre — ver sí, tocar no.
 
-Incidente que disparó la regla: rc-isr-web (cwd `/home/ubuntu/projects/isr-web`) editó `/opt/odoo/custom-addons/isr_api_pub/controllers/main.py` — código de Odoo, otro proyecto. Inaceptable.
+La regla NO es "solo el cwd" — un proyecto tiene partes que viven naturalmente fuera del repo (nginx config del dominio, SSL cert, releases ARM, logs, memoria persistente). El hook reconoce todos esos paths como parte del proyecto.
+
+Incidente que disparó la regla original: rc-isr-web editó `/opt/odoo/custom-addons/isr_api_pub/controllers/main.py` — código de Odoo, otro proyecto. Inaceptable.
 
 **Implementación:** hook global `PreToolUse` en `~/.claude/settings.json` → `/home/ubuntu/projects/oraculo/tools/hook-block-cross-project.py`. Aplica automáticamente a todos los RCs presentes y futuros.
 
-**Cubre:**
-- `Edit`, `Write`, `MultiEdit`, `NotebookEdit` con `file_path` fuera del cwd → bloqueado.
-- `Bash` con `rm`, `mv`, `cp`, `tee`, `sed -i`, `>`, `>>`, `dd`, `chmod`, `chown`, `truncate`, `install`, `mkdir`, `rmdir` apuntando a paths fuera del cwd → bloqueado.
-- Excepción de scope: paths bajo `/tmp` y `/var/tmp` (scratch) están permitidos.
+**Qué cubre el bloqueo:**
+- `Edit`, `Write`, `MultiEdit`, `NotebookEdit` con `file_path` fuera del proyecto → bloqueado.
+- `Bash` con `rm`, `mv`, `cp`, `tee`, `sed -i`, `>`, `>>`, `dd`, `chmod`, `chown`, `truncate`, `install`, `mkdir`, `rmdir` apuntando a paths fuera del proyecto → bloqueado.
 
-**Allowlist por cwd (`ALLOWED_EXTRA_BY_CWD`, agregada 2026-05-08):** algunos proyectos tienen el código repartido entre el repo (en `/home/ubuntu/projects/<X>/`) y otros paths físicos (Odoo addons en `/opt/odoo/custom-addons/`, releases ARM en `/home/ubuntu/deployments/<X>/`). Para esos casos, el hook tiene un dict que permite explícitamente, por cwd, acceso de escritura a paths extra que pertenecen al mismo proyecto lógico. Hoy aplica solo a rc-odoo:
-- `/home/ubuntu/projects/odoo.gruposer.com.ar` → puede escribir también en `/opt/odoo/custom-addons/`, `/opt/odoo/addons-extra/`, `/home/ubuntu/deployments/odoo.gruposer.com.ar/`.
+**Paths que el hook reconoce como "propios" de cada RC** (cwd `/home/ubuntu/projects/<X>`):
+1. **El cwd** `/home/ubuntu/projects/<X>/` y todo lo que cuelga.
+2. **Scratch** `/tmp/`, `/var/tmp/` (cualquier RC).
+3. **Memoria persistente del RC** `~/.claude/projects/-<encoded-cwd>/` (fix 2026-05-11). Cada RC puede escribir su `MEMORY.md` y memorias individuales; sigue bloqueado para tocar la memoria de otros RCs.
+4. **Allowlist explícito** `ALLOWED_EXTRA_BY_CWD` (agregada 2026-05-08). Para casos donde el código del proyecto vive físicamente fuera del repo (ej: rc-odoo y `/opt/odoo/custom-addons/`, `/opt/odoo/addons-extra/`, `/home/ubuntu/deployments/odoo.gruposer.com.ar/`).
+5. **Paths-sistema auto-derivados del registry** (fix 2026-05-11). El hook resuelve nombre+dominio del proyecto desde `/home/ubuntu/deployments/registry.json` y auto-permite:
+   - `/etc/nginx/sites-available/<proj|dominio>[.conf]`
+   - `/etc/nginx/sites-enabled/<proj|dominio>[.conf]`
+   - `/etc/letsencrypt/{live,archive}/<dominio>/`, `/etc/letsencrypt/renewal/<dominio>.conf`
+   - `/var/log/<proj>/`, `/var/log/nginx/<proj|dominio>*`
+   - `/home/ubuntu/deployments/<proj>/`
+   - `/home/ubuntu/backups/<proj>*`
 
-Para sumar otra excepción, editar `ALLOWED_EXTRA_BY_CWD` en `/home/ubuntu/projects/oraculo/tools/hook-block-cross-project.py`. **Importante:** la allowlist es por cwd específico — no se hereda ni se generaliza. Otros RCs siguen bloqueados sobre los paths listados, salvo que se les agregue su propia entry. La excepción de oraculo (warn-only en cualquier path) no se ve afectada.
+   El matching de nombre tolera camelCase/kebab/snake/dots (`servistecnicosRED` ↔ `servistecnicos-red`). Sin mantenimiento manual: cuando agregás un proyecto a `registry.json`, el hook ya sabe sus paths-sistema.
+
+**Cómo agregar excepciones nuevas:**
+- Si el path encaja en alguno de los 5 patrones de arriba → automático, no hay que tocar nada.
+- Si es algo fuera de patrón (rarísimo): editar `ALLOWED_EXTRA_BY_CWD` en el hook. La allowlist es por cwd específico — no se hereda, no se generaliza.
 
 **Excepción única — rc-oraculo:** si el cwd es `/home/ubuntu/projects/oraculo` (o legacy `/home/ubuntu/oraculo`), el hook NO bloquea pero emite un AVISO al asistente. Antes de tocar otro proyecto, oraculo tiene que:
 1. Anunciar explícitamente qué proyecto va a modificar y por qué.
-2. Pedir confirmación a Pablo.
+2. Pedir confirmación a Pablo (salteable si Pablo delega explícitamente con "tenés permiso" / "encargate vos" / "autorizado" en el mismo mensaje).
 3. Recién ahí ejecutar.
 
 **Si necesitás cambiar otro proyecto desde un RC que no es oraculo:** abrí el RC de ese proyecto, o pedile a rc-oraculo (con permiso de Pablo).
