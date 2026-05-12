@@ -161,6 +161,90 @@ Incidente que disparó la regla original: rc-isr-web editó `/opt/odoo/custom-ad
 
 ---
 
+## ARQUITECTURA MODULAR — REGLA DURA PARA TODOS LOS PROYECTOS (2026-05-12)
+
+**Cada proyecto ARM y cada feature nueva DEBE estructurarse como módulos isolables**, no como monolitos crecientes. Sin excepciones para features nuevas. Los proyectos legacy (isr-web, marinaos, servistecnicos) se modularizan **gradualmente** cuando los toquemos.
+
+### Por qué la regla (Pablo, 12/05/2026)
+
+> "Si modificás un módulo y se daña, solo se daña ese módulo. Si agregás un módulo nuevo, no tocamos el resto."
+
+Pablo perdió tiempo en proyectos-monstruo donde un cambio a un feature rompía otro feature no relacionado. La regla apunta a **aislamiento**: cada feature debe poder romperse, desactivarse, migrarse sin afectar al resto.
+
+### Qué cuenta como "módulo"
+
+Un módulo es una unidad **autosuficiente** con:
+
+1. **Carpeta dedicada** con nombre descriptivo (`session-continuity/`, `gs_cianbox_sync/`, `wa-safeguards/`)
+2. **README.md** que explica qué hace, cómo se instala, cómo se desinstala
+3. **install.sh / uninstall.sh** (o equivalente del stack: `__manifest__.py` en Odoo, `package.json` en Node)
+4. **Código propio** sin tocar otros módulos. Si necesita usar otro módulo, lo declara como **dependencia**, no copia código.
+5. **Tests propios** (ideal, no obligatorio para módulos pequeños)
+6. **Versionado independiente** (cuando aplique)
+
+### Patrón por stack
+
+| Stack | Estructura módulo | Ejemplo |
+|---|---|---|
+| Oraculo (bash + python tools) | `oraculo/modules/<nombre>/{install.sh, uninstall.sh, README.md, ...}` | `session-continuity/` |
+| Odoo | Custom addon en `/opt/odoo/custom-addons/<nombre>/` con `__manifest__.py`, `models/`, `data/`, `README.md` | `gs_cianbox_sync/`, `gs_wa_notifications/` |
+| Node.js (isr-web, marinaos, servistecnicos) | `src/modules/<nombre>/{index.js, routes.js, service.js, model.js, README.md}` | `src/modules/leads/`, `src/modules/vehicles/` |
+| Python (oraculo core) | `oraculo/<feature>/{__init__.py, ...}` con import explícito en `main.py` | `oraculo/karpathy/`, `oraculo/clones/` |
+
+### Reglas operativas
+
+1. **Feature nueva = módulo nuevo.** Si dudás:
+   - ¿Se puede desactivar sin romper otros features? → módulo nuevo
+   - ¿Tiene su propia tabla / cron / endpoint? → módulo nuevo
+   - ¿Es un fix dentro de algo existente? → modificar el módulo existente
+2. **NO copiar código entre módulos.** Si dos módulos necesitan la misma utilidad → crear un módulo `shared/` o `utils/` que ambos importen.
+3. **NO mezclar features en un script.** Un `sync_everything.py` que hace partners + products + invoices = anti-patrón. Tres módulos separados.
+4. **Doc al lado del código.** Cada módulo tiene su README con: qué hace, dependencias, cómo se prueba, cómo se desinstala.
+5. **Backwards compat al migrar.** Si movés un script a módulo, mantené un wrapper o symlink en la ubicación vieja durante 2-4 semanas, y dejá una entrada en `_deprecated/README.md` que diga dónde se movió.
+
+### Cuándo NO aplica
+
+- Scripts de **un solo archivo** (`< 100 líneas`) que hacen UNA cosa y no tienen dependencias internas. Vivir en `tools/` está bien.
+- **Hotfixes** urgentes — primero arreglar, después modularizar si corresponde.
+- **Configs / dotfiles** — no necesitan módulo.
+
+### Anti-regresión (regla para Claude futuro)
+
+- Cuando Pablo te pida agregar un feature, **primer paso = decidir si es módulo nuevo o cambio en existente**. Anunciar la decisión en una línea antes de codear.
+- Si encontrás un script `tools/<feature>.py` que ya hace 3+ cosas no relacionadas, marcarlo en el reporte de Karpathy como candidato a modularizar.
+- Si vas a tocar un addon Odoo / módulo Node existente, leé su README primero (si no tiene, escribilo antes de tocar).
+- El módulo **`session-continuity`** (en `oraculo/modules/`) es el **template de referencia**. Si dudás cómo estructurar uno nuevo, mirá ese.
+
+---
+
+## CONTEXTO ENTRE SESIONES — MÓDULO `session-continuity` (2026-05-12)
+
+Persistencia per-turn del estado de sesión: cuando una RC muere de golpe (firmware update, kill -9, crash), la próxima arranca sabiendo en qué se estaba trabajando.
+
+**Ubicación**: `/home/ubuntu/projects/oraculo/modules/session-continuity/`
+**Doc completa**: ver `README.md` del módulo.
+
+### Resumen mínimo
+
+Cuatro hooks en `~/.claude/settings.json` invocan los scripts del módulo:
+
+| Hook | Cuándo | Trigger label |
+|---|---|---|
+| `UserPromptSubmit` | Cada prompt del usuario | `⏳ INTERMEDIO` |
+| `PostToolUse` | Tras cada tool use (throttle 30 s) | `🔧 INTERMEDIO` |
+| `Stop` | Cierre limpio | `✅ LIMPIO` |
+| `SessionStart` | Inicio de nueva sesión | (lee el snapshot e inyecta contexto) |
+
+Archivos escritos: `logs/last-session-summary.txt` (global) + `<CWD>/.claude/last-context.md` (per-proyecto).
+
+### Regla para Claude futuro
+
+- **NO editar los scripts directamente** — están en el módulo, tocá ahí.
+- **NO romper la instalación.** Para verificar: `bash /home/ubuntu/projects/oraculo/modules/session-continuity/install.sh --check` → debe decir `✅ instalado`.
+- Si Pablo dice "no sabés en qué estábamos" después de un restart de RC, correr el `--check` antes que cualquier otra cosa.
+
+---
+
 ## HERRAMIENTAS GLOBALES INSTALADAS (ECC, abril 2026)
 
 Pablo tiene este toolkit cargado en `~/.claude/{skills,agents,commands}/` — disponible en TODOS los proyectos. **Pablo NO va a invocarlas manualmente.** Vos (Claude) tenés que dispararlas vos cuando el contexto matchea.
