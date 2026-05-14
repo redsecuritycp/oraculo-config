@@ -161,9 +161,17 @@ Incidente que disparó la regla original: rc-isr-web editó `/opt/odoo/custom-ad
 
 ---
 
-## ARQUITECTURA MODULAR — REGLA DURA PARA TODOS LOS PROYECTOS (2026-05-12)
+## ARQUITECTURA MODULAR — REGLA DE ORO (2026-05-12, ratificada 2026-05-14)
 
-**Cada proyecto ARM y cada feature nueva DEBE estructurarse como módulos isolables**, no como monolitos crecientes. Sin excepciones para features nuevas. Los proyectos legacy (isr-web, marinaos, servistecnicos) se modularizan **gradualmente** cuando los toquemos.
+**REGLA DE ORO ABSOLUTA — sin excepciones:**
+
+1. **Todo proyecto NUEVO de acá en adelante nace MODULAR** desde el primer commit. NO se acepta crear un proyecto monolítico "para arrancar rápido y modularizar después". Eso es parche, y Pablo NO quiere parches en nada.
+2. **Todo feature NUEVO en proyecto existente va como MÓDULO**, incluso si el proyecto sigue siendo monolítico. El monolito viejo se modulariza en paralelo, pero el código nuevo NO se mete adentro.
+3. **Para modularizar proyectos legacy** (isr-web, Marinaos, servistecnicos, etc.): preferentemente **Estrategia A — Refactor incremental** (1 módulo por fase, deployable, rollback ready). Si el stack viejo no sirve (ej: frontend Vue 3 nuevo), va **Estrategia B — Strangler** (proyecto nuevo nace en paralelo, va comiéndose features hasta jubilar al viejo).
+4. **NUNCA Estrategia C (rewrite big-bang)**. Es donde mueren los proyectos. Si necesitás cambiar todo, A o B en paralelo sin romper, jamás "apago el viejo y prendo el nuevo el mismo día".
+5. **NUNCA sacar producción durante la migración**. Si rompe → `rollback-arm.sh <proyecto>` en 5 segundos.
+
+Estas reglas se aplican a **todos los proyectos ARM y cualquier proyecto futuro**. Cada proyecto ARM y cada feature nueva DEBE estructurarse como módulos isolables, no como monolitos crecientes. Los proyectos legacy se modularizan **gradualmente** cuando los toquemos.
 
 ### Por qué la regla (Pablo, 12/05/2026)
 
