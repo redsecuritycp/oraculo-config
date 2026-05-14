@@ -395,7 +395,7 @@ Para proyectos que todavía NO migraron a ARM.
 ### Dominio propio: gruposer.com.ar (DonWeb)
 - **gruposer.com.ar** → ISR-web (34.111.179.208)
 - **seragro.gruposer.com.ar** → seragro (34.111.179.208)
-- **odoo.gruposer.com.ar** → Odoo 18 Community Grupo SER en ARM (161.153.207.224, systemd `odoo.service`, puerto 8069)
+- **odoo.gruposer.com.ar** → **Argo** (Odoo 18 Community Grupo SER en ARM, 161.153.207.224, systemd `odoo.service`, puerto 8069). Renombrado 2026-05-14: nombre canónico del proyecto = **Argo**. Dominio público se mantiene. Acceso: `/home/ubuntu/projects/argo/` y registry key `argo` (alias del directorio legacy).
 - DNS se maneja desde: micuenta.donweb.com → Nameservers y Zona DNS
 - Para agregar subdominio: registro tipo A, nombre: subdominio, contenido: 161.153.207.224
 
@@ -483,7 +483,7 @@ Proyectos migrados a ARM (abril 2026). Cuando se toque CADA uno, usar la URL ARM
 |----------|----------------------|----------------|-------------|
 | oraculo | https://oraculo-pablo.duckdns.org | 5000 | PM2 `oraculo` |
 | tutorai | https://tutorai.duckdns.org | 3001 | PM2 `tutorai` |
-| odoo.gruposer.com.ar | https://odoo.gruposer.com.ar | 8069 | systemd `odoo.service` |
+| **Argo** (legacy: odoo.gruposer.com.ar) | https://odoo.gruposer.com.ar | 8069 | systemd `odoo.service` |
 | dania-captador | https://dania-captador.duckdns.org | 3002 | PM2 `dania-captador` |
 | servistecnicos-red | https://servistecnicos.duckdns.org | 3003 | PM2 `servistecnicos-red` |
 | vendetta-api | https://vendetta-arm.duckdns.org | 3004 | PM2 `vendetta-api` |
