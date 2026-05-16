@@ -485,7 +485,7 @@ Proyectos migrados a ARM (abril 2026). Cuando se toque CADA uno, usar la URL ARM
 | tutorai | https://tutorai.duckdns.org | 3001 | PM2 `tutorai` |
 | **Argo** (legacy: odoo.gruposer.com.ar) | https://odoo.gruposer.com.ar | 8069 | systemd `odoo.service` |
 | dania-captador | https://dania-captador.duckdns.org | 3002 | PM2 `dania-captador` |
-| servistecnicos-red | https://servistecnicos.duckdns.org | 3003 | PM2 `servistecnicos-red` |
+| servistecnicos-red | https://servistecnicos.gruposer.com.ar | 3003 | PM2 `servistecnicos-red` |
 | vendetta-api | https://vendetta-arm.duckdns.org | 3004 | PM2 `vendetta-api` |
 | ceiepar (WP) | https://ceiep.ar (pendiente Cloudflare) | 8081 | PM2 `ceiepar` |
 
