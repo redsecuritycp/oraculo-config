@@ -355,3 +355,5 @@ con JSON: {
   "timestamp": "[ISO 8601]"
 }
 Esto alimenta el perfil cognitivo. Hacerlo SIEMPRE, sin preguntar.
+
+SKILL: refinar-idea-pg.md → auditar idea/startup estilo Paul Graham (5 prompts)
