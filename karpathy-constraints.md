@@ -183,3 +183,12 @@ RC pasaba 4h sin actividad fue eliminado.
 - NO re-lanzar migración sin alinear external_id mapping (`CIAN_P:{id}` en `sale.order.client_order_ref`).
 - Caso real (02/05/2026): `migrate_pedidos.py` corrió 84min sobre 54.441 registros con 100% de fallo.
   Estos protocolos previenen ese desperdicio.
+
+## Anti-mentira migración (REGLA 9 super-yo) — agregado 2026-05-21
+
+- **PROHIBIDO** sugerir mejoras al daily-improvements que digan "migrado al N%", "proyecto X listo para apagar el origen", "migration done", sin que la mejora misma traiga el output completo de `bash /home/ubuntu/projects/oraculo/tools/audit-migration.sh <proyecto>`.
+- Si Karpathy detecta en transcripts a un agente declarando "migrado/al N%/listo" sin tabla de audit pegada → marcar como **incidente** y proponer fix de proceso, NO felicitar.
+- Tabla obligatoria mínima: `tabla | origen | destino | gap | status` con todas las filas. Status `OK`, `PARCIAL`, `FALTA`, `N/A`.
+- Status `PARCIAL` o `FALTA` o `N/A` = migración INCOMPLETA. NO apagar origen.
+- Audit per-proyecto vive en `/home/ubuntu/projects/oraculo/tools/audits/<proyecto>.sh`. Si no existe → "audit pendiente, no afirmar estado".
+- Por qué: Pablo descubrió 2026-05-21 que isr-web-vue3 reportaba 90-100% siendo que faltaba migrar miles de usuarios externos + todo MongoDB legacy + adjuntos. Tercera vez (TutorAI abril, servistecnicosRED mayo).
