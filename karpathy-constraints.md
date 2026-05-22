@@ -192,3 +192,12 @@ RC pasaba 4h sin actividad fue eliminado.
 - Status `PARCIAL` o `FALTA` o `N/A` = migración INCOMPLETA. NO apagar origen.
 - Audit per-proyecto vive en `/home/ubuntu/projects/oraculo/tools/audits/<proyecto>.sh`. Si no existe → "audit pendiente, no afirmar estado".
 - Por qué: Pablo descubrió 2026-05-21 que isr-web-vue3 reportaba 90-100% siendo que faltaba migrar miles de usuarios externos + todo MongoDB legacy + adjuntos. Tercera vez (TutorAI abril, servistecnicosRED mayo).
+
+---
+
+## Pre-Mortem obligatorio antes de cambio productivo (regla 2026-05-22)
+
+- Antes de ejecutar `deploy-arm.sh`, `rollback-arm.sh`, `nginx -s reload` en dominio público, `pm2 restart` proceso productivo, `git push origin main` en proyecto productivo, `certbot --force-renewal`, switch DNS público, bump versión mayor, apagar/borrar recurso productivo, migración entera → asistente DEBE invocar `Skill pre-mortem` con tabla escenarios + mitigación PRE + rollback.
+- Karpathy lee transcripts diarios. Si encuentra ejecución de cualquiera de esos comandos SIN invocación de skill pre-mortem en los 30 min previos del mismo transcript → marcar incidente y proponer mejora al description de la skill (más triggers, keywords nuevas).
+- **NO proponer al usuario** "instalar más skills tipo TDAH executive function" / "agregar más prompts marketinizados" — Pablo NO ejecuta tareas manuales, las skills tipo "menú dopamina para humano" no aplican. Solo skills que asistan al asistente (descomposición de plan, validación, rollback) son válidas.
+- **NO proponer** hooks bloqueantes nuevos sin pre-mortem propio del hook — el último incidente con hook bloqueante fue `git mv tools/hook-*.py` 2026-05-14 (bloqueo 30min). Hooks productivos solo informativos por default; bloqueantes solo con rollback testeado.
