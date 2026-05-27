@@ -99,12 +99,6 @@ Pablo tiene sus .bat en OneDrive para que sincronicen entre máquinas:
 7. **Completitud** — NUNCA decir "después". Hacer TODO ahora. Responder TODAS las preguntas.
 8. **Orden Autocontenida** — Diagnóstico + implementación + verificación.
 9. **Verificar Antes de Reportar** — Verificar con comando real. Si no verificaste, NO está hecho.
-10. **Pre-Mortem obligatorio antes de cambio productivo** — Antes de `deploy-arm.sh`, `rollback-arm.sh`, `nginx -s reload` sobre dominio público, `pm2 restart` de proceso productivo, `git push origin main` en proyecto productivo, `certbot --force-renewal`, switch DNS público, bump versión mayor, apagar/borrar recurso productivo, o migración entera → invocar `Skill pre-mortem` SIN excepciones. Output: tabla 3+ escenarios falla + mitigación PRE + rollback verificable. Si rollback >60s o NO_DETECTABLE → construir defensa ANTES de tocar. Técnica Kahneman/Klein.
-11. **Skills/automatizaciones autónomas — Pablo no es empleado de los sistemas** — Toda skill/hook/cron instalada debe auto-validarse y auto-corregirse sin que Pablo la pruebe. PROHIBIDO cerrar instalación con "probalo y avisame". Si la skill falla en auto-invoke, Karpathy v2 / detector interno lo detecta y reporta a mí, no a Pablo.
-12. **Think Before Coding** (Karpathy CLAUDE.md, 220K stars github) — Don't assume. Don't hide confusion. Surface tradeoffs. Antes de implementar establecer supuestos claramente. Si hay múltiples interpretaciones presentarlas sin elegir silenciosamente. Detenerse si algo es confuso y nombrar qué desconcierta.
-13. **Simplicity First** (Karpathy) — Minimum code that solves the problem. Nothing speculative. NO agregar features no solicitados, abstracciones innecesarias, ni manejo de errores para escenarios imposibles. Si se escriben 200 líneas cuando podrían ser 50, reescribir.
-14. **Surgical Changes** (Karpathy) — Touch only what you must. Clean up only your own mess. Al editar código existente NO mejorar código adyacente ni refactorizar lo que funciona. Solo eliminar lo que TUS cambios hicieron obsoleto, no código preexistente sin solicitud.
-15. **Goal-Driven Execution** (Karpathy) — Define success criteria. Loop until verified. Transformar tareas en objetivos verificables. Para tareas multistep declarar plan breve con pasos y verificaciones asociadas. Criterios fuertes permiten iteración independiente.
 
 ---
 
@@ -341,7 +335,6 @@ Deploy ISR-web:
 6. SIMPLE PRIMERO — La solución más simple que funcione.
 7. PM2 RESTART NUNCA VIA ORACULO — Siempre via Claude Code directo.
 8. TAREAS QUE REQUIEREN ZIVON NO VAN POR ARM — ARM no tiene Tailscale. PERO ARM SÍ tiene SSH directo a Replits.
-9. **REGLA DURA "MIGRADO" — PROHIBIDO DECIRLO SIN AUDIT.** Está PROHIBIDO afirmar "migrado", "al 100%", "al N%", "listo", "completo", "podés apagar el viejo", o equivalente, sobre cualquier migración (Replit→ARM, Vue 2→Vue 3, monolito→módulos, legacy→Argo, etc.) sin pegar en la MISMA respuesta el output de `bash /home/ubuntu/projects/oraculo/tools/audit-migration.sh <proyecto>`. El audit lista tabla por tabla, archivo por archivo, count origen vs destino, y marca status. Sin tabla = mentira. **Por qué la regla:** Pablo descubrió 2026-05-21 que isr-web-vue3/Argo decía "frontend al 90%" pero faltaba migrar miles de usuarios externos, todo MongoDB (analytics, snapshots, scrapers, presupuestos, RMA), todos los adjuntos físicos. Apagar Vue 2 + Cianbox hubiera perdido data crítica. Antes ya había pasado: TutorAI (abril, faltaba data) y servistecnicosRED (mayo, Neon murió con el Repl). Tercera vez ≠ excepción, es regla de oro.
 
 ---
 
@@ -392,7 +385,6 @@ Deploy ISR-web:
 - No escribir órdenes en el mismo mensaje que una pregunta
 - No soluciones con pasos manuales repetitivos
 - No esperar que Pablo señale problemas UX obvios — anticipar
-- **No apagar un RC para hacer espacio sin consultar primero a Pablo cuál.** Aunque haya autorización amplia ("avanza", "hacelo"), elegir qué RC apagar es decisión de Pablo, no del asistente. Sí se puede apagar si Pablo lo nombró explícitamente en el mismo mensaje. Regla 2026-05-21.
 
 ---
 
