@@ -2,88 +2,165 @@
 
 Este archivo se lee en TODOS los proyectos de ARM. Contiene lecciones aprendidas que aplican transversalmente.
 
+---
+
+## ⛔ ZIVON ELIMINADO (2026-06-05) — REGLA DURA, APLICA A TODOS LOS PROYECTOS
+
+**Pablo borró ZIVON el 2026-06-05. NO existe más. NO es una máquina apagada — está eliminada.**
+
+- **NO** intentar `ssh zivon` / `100.80.5.31` / Tailscale a ZIVON. No hay relay por Mac. No hay nada que reactivar.
+- **NO** diseñar ninguna solución que dependa de ZIVON (túnel, proxy, SOCKS5, SSH, HikCentral, IP residencial).
+- Cualquier doc/CLAUDE.md/memoria que diga "ARM tiene SSH a ZIVON", "ZIVON prendida 24/7", "Pablo es relay vía Mac", "túnel reverso a ZIVON" → **OBSOLETO**, ignorar.
+
+**Lo que ZIVON se llevó:**
+- **ClaudeClaw** (bot WhatsApp/Telegram + HikCentral cámaras) — vivía en ZIVON. MUERTO.
+- **wa-engine residential tunnel** — el egress de WhatsApp salía por `socks5://127.0.0.1:11080` = túnel reverso desde ZIVON (`WA_PROXY_POOL: "zivon-tunnel"`). Túnel muerto → **WhatsApp de wa-engine PAUSADO** (Marinaos, servistecnicos). Por diseño pausa en vez de banear (sin riesgo de ban), pero **no envía hasta tener IP residencial AR nueva** (4G casero / proxy residencial / otra). Decisión de Pablo pendiente. NO apuntar wa-engine a salida directa (= IP datacenter = ban).
+- HikCentral (cámaras Carlos Pellegrini).
+
+**ARM siempre fue 100% independiente de ZIVON para sus tareas** — esto no cambia eso, solo confirma que ZIVON ya no es opción para NADA.
+
+---
+
 ## DIRECTIVAS COMPARTIDAS
 Leer siempre:
 - `/home/ubuntu/projects/shared/super-yo.md` — reglas universales de Pablo (onboarding completo, metodología, infraestructura, deploy)
 
 ---
 
-## WHATSAPP VIA BAILEYS — SALVAGUARDAS ANTI-BANEO META OBLIGATORIAS (2026-05-08)
+## PROYECTO NUEVO — REGLA DURA DE ARRANQUE (2026-05-20) ⭐
 
-**TODO proyecto que conecte WhatsApp vía Baileys / whatsapp-web.js / wppconnect / cualquier integración no-oficial DEBE implementar las 6 salvaguardas anti-baneo + bug fixes + Telegram alerts + persistencia + silenciador libsignal.** Sin excepciones.
+**TODO proyecto nuevo, desde el primer commit, DEBE tener:**
 
-**Por qué la regla**: Pablo perdió 2+ números entre 5-6 mayo 2026 por QR loop infinito + IP datacenter + signaling continuo a Meta. Cada número perdido = lista de clientes en ese chat perdida + costo de mover a un número nuevo. La regla operativa de Pablo: **"ante la duda, pausar y proteger los números"**.
+1. **Repo GitHub privado** creado bajo `redsecuritycp/<nombre>` (no quedarse solo con repo local — sin remote no hay CI, no hay backup, no hay history-share).
+2. **`.github/workflows/ci.yml` activo y corriendo verde** en la primera push. Templated por `tools/setup-ci-workflow.sh`. Lint del stack que corresponda (Node/Python/Bash/XML) + secrets scan obligatorio.
+3. **`modules/` dir** con `README.md` explicando estructura modular obligatoria. Feature nueva = módulo nuevo, NO scripts sueltos en raíz.
+4. **`CLAUDE.md`** del proyecto con contenido real (no placeholder).
 
-### Referencia canónica
+**Aplicación automática:** `onboard-project.sh` ejecuta los 4 pasos en sección 9.6 del script. Si Claude crea un proyecto sin pasar por onboard, igual debe cumplir los 4 manualmente en el mismo turno.
 
-- `servistecnicosRED/server/wa-client.ts` (TypeScript, multi-tenant) — implementación de referencia v77 (8 mayo 2026)
-- `Marinaos/wa-bridge/server.js` (JS plano, single-tenant) — port equivalente
+**Anti-regresión (Claude futuro):**
+- Cuando Pablo diga "creá proyecto X", "armá rc-X" o "migrá Y a ARM": el primer paso es onboard + verificar los 4 puntos.
+- Si encontrás proyecto en `/home/ubuntu/projects/` sin repo GH, sin CI, sin `modules/`, o sin `CLAUDE.md`: deuda técnica P0, completarlo en el mismo turno.
+- Defensa: `tools/audit-claudemd.sh` (CLAUDE.md), `tools/audit-domains.sh` (registry), y onboarding bloquea avance si faltan.
 
-Cualquier proyecto WhatsApp **debe portar el mismo patrón**, adaptando lenguaje pero preservando comportamiento.
+**PAT con scope `workflow` requerido** para push de archivos en `.github/workflows/`. Sin ese scope, push falla con `refusing to allow a Personal Access Token to create or update workflow`. Si pasa, pedir PAT nuevo a Pablo — NO intentar workarounds (deja CI inactivo).
 
-### Las 6 salvaguardas (todas obligatorias)
+**Por qué la regla:** Pablo (2026-05-20) textual: *"si esto deberia ser de arrancada en cada proyecto, ya deberia ser asi. registralo donde sea pero q se cumpla la puta madre"*. Cada proyecto sin CI activo es deuda técnica que cuesta tiempo después. Sin repo GH = sin backup, sin pair-review, sin ultrareview. Sin modular = monolito que cuesta migrar.
 
-1. **QR timeout 30 min**: si entra estado `qr` y nadie escanea en 30 min → safetyStop, alerta Telegram, NO sigue generando QRs. Loop perpetuo de QR fue uno de los factores del baneo Marinaos 06/05.
-2. **Flapping detector**: si > 3 `connection: open` en ventana de 1h → pausa + alerta. Reconexiones repetidas son señal pre-baneo.
-3. **Cierres consecutivos sin open**: contador que sube en cada `close` y se resetea en `open`. Si llega a 3 → pausa + alerta. Indica Meta rechazando la sesión.
-4. **Keywords sospechosas**: en `lastDisconnect.error.message`, regex `/\b(banned|blocked|forbidden|prohibited|403|405|account[\s-]?suspend)/i` o `statusCode === 403 || 405` → pausa inmediata.
-5. **`loggedOut` sin auto-rebind**: cuando llega `DisconnectReason.loggedOut`, NO reabrir la sesión automáticamente (es signaling extra a Meta). Pausar + alerta. Pablo decide si reactivar (desvinculación legítima) o no (posible ban).
-6. **Persistencia en disco**: cuando se pausa, escribir `<sessionDir>/.stopped` con `{ reason, at, lastError }`. Al boot del proceso, si existe el marker → cargar estado y NO arrancar el socket. Endpoint `POST /reactivate` que borra el marker y arranca de nuevo (con flag `wipe_auth=true` para casos `logged_out` que requieren credenciales nuevas).
+---
 
-### Bug fixes obligatorios (lección servistecnicos 2026-05-08)
+## WHATSAPP — REGLA DURA wa-engine (2026-05-19) ⭐ NUEVA REGLA, SOBREESCRIBE LA ANTERIOR
 
-- En `safetyStop`, **antes** de cerrar el socket: `sock.ev.removeAllListeners()`. Sin esto, Baileys sigue disparando events post-stop → más signaling a Meta justo cuando NO queremos.
-- Al inicio del handler `connection.update`: `if (this.stopped || this.sock !== sock) return;`. Guard contra eventos rezagados de sockets viejos que ensucian el estado del socket nuevo.
+**TODO proyecto que necesite WhatsApp DEBE consumir el módulo `wa-engine` vía HTTP REST. PROHIBIDO importar Baileys (o whatsapp-web.js, wppconnect, OpenWA, etc.) directo en proyecto cliente.** Sin excepciones (salvo Ovidio que usa WhatsApp Cloud API oficial de Meta).
 
-### Notificaciones Telegram (failsafe)
+**Por qué:**
+1. **Anti-baneo centralizado**: las 6 safeguards + throttle + jitter + typing sim + proxy residencial AR — solo se mantienen en UN lugar (`oraculo/modules/wa-engine/`)
+2. **DRY**: una sola implementación, no copy-paste entre 5 proyectos
+3. **Observability**: dashboard único `/dashboard` con todas las sesiones
+4. **Rotación de IPs**: pool de proxies centralizado (proxy actual: `zivon-tunnel` → IP residencial AR `45.224.55.249` San Jorge via reverse SSH tunnel desde ZIVON)
+5. **Lección histórica**: Marinaos perdió 2 números en 5-6 mayo 2026 por baileys directo en cada proyecto sin safeguards completas
 
-- Token y chat_id: leer de `/home/ubuntu/.secrets/telegram-oraculo.env` (mismo bot que usa Oraculo). NO hardcodear en código ni en docs.
-- URL endpoint: `https://api.telegram.org/bot<TOKEN>/sendMessage`
-- **Failsafe**: si POST falla (red caída, token revocado), **NO crashear el bridge**. Solo loguear.
-- Mensaje incluye: nombre proyecto, razón de pausa, número afectado, instrucción concreta para Pablo (qué reactivar / qué verificar primero).
+### Arquitectura
 
-### Silenciador libsignal (obligatorio)
+```
+┌──────────────────────────────────────────────┐
+│ ARM                                           │
+│   oraculo/modules/wa-engine (Node + Baileys) │
+│   ├── API REST :7100                          │
+│   ├── 6 safeguards + throttle + warming       │
+│   └── salida via socks5://127.0.0.1:11080     │
+└────────────────┬─────────────────────────────┘
+                 │ reverse SSH tunnel
+                 ▼
+┌──────────────────────────────────────────────┐
+│ ZIVON (oficina San Jorge)                     │
+│   3proxy SOCKS5 :1080                         │
+│   └─→ egress por internet residencial AR      │
+│       (45.224.55.249, Summit S.A.)            │
+└──────────────────────────────────────────────┘
 
-`libsignal/src/session_record.js` hace `console.info("Closing session:", sessionGigante)` por cada cierre de sesión WA. Sin silenciar, los logs PM2 se llenan a varios MB/h. **Logrotate matando logs grandes mientras pm2 los tiene abiertos puede disparar respawn del daemon** (incidente servistecnicos 06:00 del 2026-05-08).
-
-Solución: módulo `silence-libsignal` que se require **PRIMERO de todo, antes de cargar Baileys**, hace override de `console.info` para descartar mensajes que matchean `/^Closing session:/`.
-
-### Endpoints HTTP obligatorios
-
-- `POST /reactivate` — borra el `.stopped` marker, opcional `{ wipe_auth: true }` para wipe de credenciales (caso `logged_out`)
-- `POST /manual-stop` — pausa preventiva manual con nota
-- `GET /status` debe incluir: `stopped`, `stoppedReason`, `stoppedAt`, `lastError`, `flapping_open_count`, `consecutive_closes_without_open`
-
-### pm2-logrotate (system-wide)
-
-Aplicar en **TODO ARM** (no solo en proyectos WA), pero crítico para WA:
-
-```bash
-pm2 install pm2-logrotate
-pm2 set pm2-logrotate:max_size 50M
-pm2 set pm2-logrotate:retain 7
-pm2 set pm2-logrotate:compress true
-pm2 set pm2-logrotate:rotateInterval '0 2 * * *'
+Proyectos cliente → HTTP REST → wa-engine
 ```
 
-### Anti-regresión (regla para Claude futuro)
+### Patrón cliente (TODO proyecto que use WA)
 
-- Cuando Pablo cree un proyecto nuevo con WhatsApp Baileys/web.js: **PRIMERA tarea** es portar las 6 salvaguardas. NO arrancar producción sin ellas.
-- Si encontrás un proyecto WA que no tiene `silence-libsignal`, `.stopped` marker, o `removeAllListeners`: **deuda técnica crítica**, avisar a Pablo y portarlas.
-- NUNCA conectar el WhatsApp **personal** de Pablo a Baileys/QR. Solo números descartables o de empresa.
-- Si las salvaguardas mismas se rompen (caso real: bridge sin guard `if (stopped...) return;` que sigue disparando QRs post-stop), tratarlo como bug **P0** y arreglar inmediato.
+```javascript
+// PROHIBIDO: import { makeWASocket } from '@whiskeysockets/baileys'
+// OBLIGATORIO:
+const WA_ENGINE = process.env.WA_ENGINE_URL ?? 'http://localhost:7100'
+const API_KEY = process.env.WA_ENGINE_API_KEY
 
-### Lo que NO arregla esto
+async function sendText(sessionId, to, text) {
+  const res = await fetch(`${WA_ENGINE}/sessions/${sessionId}/send-text`, {
+    method: 'POST',
+    headers: { 'X-Api-Key': API_KEY, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ to, text })
+  })
+  return res.json()
+}
 
-Las salvaguardas reducen el riesgo, **no lo eliminan**. Para campañas masivas o uso intensivo, el camino seguro sigue siendo **WhatsApp Cloud API oficial** (con plantillas pre-aprobadas) o **BSP (Wati / 360dialog)**. Baileys está OK para:
-- Atención al cliente conversacional bajo volumen
-- Bot de respuestas a clientes que ya iniciaron contacto
-- Casos donde el costo de un ban ocasional es tolerable
+async function sendMedia(sessionId, to, type, base64OrUrl, caption) {
+  return fetch(`${WA_ENGINE}/sessions/${sessionId}/send-media`, {
+    method: 'POST',
+    headers: { 'X-Api-Key': API_KEY, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ to, type, base64: base64OrUrl, caption })
+  }).then(r => r.json())
+}
+```
 
-**NO está OK** para:
-- Mass marketing / broadcasts a contactos sin opt-in
-- Volumen alto sostenido (>500 msg/día)
-- Números de la línea principal del negocio
+### Recibir mensajes (webhooks)
+
+Cada proyecto registra UN webhook en wa-engine:
+```bash
+curl -X POST http://localhost:7100/webhooks \
+  -H "X-Api-Key: $WA_ENGINE_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "url": "https://tu-proyecto.gruposer.com.ar/wa/webhook",
+    "events": ["message.received", "session.status"],
+    "secret": "tu-secret-hmac"
+  }'
+```
+
+wa-engine va a hacer POST a tu URL con HMAC SHA256 firma (`X-Webhook-Signature: sha256=...`).
+
+### Onboarding nuevo proyecto WA
+
+1. Pedir a Pablo número WhatsApp + chip físico (o asignar uno descartable)
+2. POST `/sessions/<sessionId>/start` → wa-engine devuelve QR (vía endpoint `/sessions/<id>/qr` o webhook `session.qr`)
+3. Pablo escanea con celular físico del número
+4. Sesión queda vinculada, sale por IP residencial via ZIVON tunnel
+5. Proyecto cliente solo consume HTTP REST de wa-engine
+
+### Limitaciones a respetar
+
+- **Warming curve**: número nuevo arranca con 5 msg/día → escala automático con edad (20, 50, 200, 500, 1000)
+- **Outbound a contactos sin opt-in = RIESGO** — anti-baneo NO es magia
+- **Para campañas masivas / broadcasts**: usar WhatsApp Cloud API oficial de Meta (NO wa-engine). Ej: ovidio-botvendedor
+- **Volumen alto sostenido** (>1000 msg/día/número): considerar BSP (Wati, 360dialog) o múltiples sesiones
+
+### Migración proyectos existentes
+
+Orden (riesgo bajo → alto):
+1. ✅ Piloto: `servistecnicos-gianfranco` (pausado por safeguards, riesgo cero)
+2. Si OK 48h → resto sesiones servistecnicos (admin, bruno)
+3. Marinaos
+4. ClaudeClaw
+5. dania-captador
+
+NO migrar: ovidio (Cloud API), ClaudeClaw (vive en ZIVON, evaluar caso aparte)
+
+### Para Claude futuro — anti-regresión
+
+- **Cuando Pablo pida agregar WhatsApp a un proyecto nuevo**: PRIMERA tarea = leer este README, NO copiar código baileys de otro proyecto.
+- **Si encontrás un proyecto importando baileys directo**: deuda técnica P0, refactorizar a usar wa-engine vía HTTP.
+- **wa-engine corre en ARM solamente**. Salida a internet pasa por ZIVON tunnel (`socks5://127.0.0.1:11080`). Si ZIVON cae, el tunnel cae, las sesiones se pausan automáticamente. Eso ES el diseño — preferimos pausar a banear.
+- **Cualquier cambio al wa-engine se documenta acá Y en `modules/wa-engine/README.md`**.
+
+---
+
+## WHATSAPP VIA BAILEYS (HISTÓRICO — sustituido por wa-engine)
+Detalle completo de las 6 salvaguardas anti-baneo: `/home/ubuntu/oraculo-config/claude-md/historical/wa-baileys-salvaguardas.md`. Leer SOLO si tocás código baileys legacy.
 
 ---
 
@@ -137,7 +214,7 @@ Incidente que disparó la regla original: rc-isr-web editó `/opt/odoo/custom-ad
 1. **El cwd** `/home/ubuntu/projects/<X>/` y todo lo que cuelga.
 2. **Scratch** `/tmp/`, `/var/tmp/` (cualquier RC).
 3. **Memoria persistente del RC** `~/.claude/projects/-<encoded-cwd>/` (fix 2026-05-11). Cada RC puede escribir su `MEMORY.md` y memorias individuales; sigue bloqueado para tocar la memoria de otros RCs.
-4. **Allowlist explícito** `ALLOWED_EXTRA_BY_CWD` (agregada 2026-05-08). Para casos donde el código del proyecto vive físicamente fuera del repo (ej: rc-odoo y `/opt/odoo/custom-addons/`, `/opt/odoo/addons-extra/`, `/home/ubuntu/deployments/odoo.gruposer.com.ar/`).
+4. **Allowlist explícito** `ALLOWED_EXTRA_BY_CWD` (agregada 2026-05-08). Para casos donde el código del proyecto vive físicamente fuera del repo (ej: rc-odoo y `/opt/odoo/custom-addons/`, `/opt/odoo/addons-extra/`, `/home/ubuntu/deployments/argo.gruposer.com.ar/`).
 5. **Paths-sistema auto-derivados del registry** (fix 2026-05-11). El hook resuelve nombre+dominio del proyecto desde `/home/ubuntu/deployments/registry.json` y auto-permite:
    - `/etc/nginx/sites-available/<proj|dominio>[.conf]`
    - `/etc/nginx/sites-enabled/<proj|dominio>[.conf]`
@@ -395,7 +472,7 @@ Para proyectos que todavía NO migraron a ARM.
 ### Dominio propio: gruposer.com.ar (DonWeb)
 - **gruposer.com.ar** → ISR-web (34.111.179.208)
 - **seragro.gruposer.com.ar** → seragro (34.111.179.208)
-- **odoo.gruposer.com.ar** → **Argo** (Odoo 18 Community Grupo SER en ARM, 161.153.207.224, systemd `odoo.service`, puerto 8069). Renombrado 2026-05-14: nombre canónico del proyecto = **Argo**. Dominio público se mantiene. Acceso: `/home/ubuntu/projects/argo/` y registry key `argo` (alias del directorio legacy).
+- **argo.gruposer.com.ar** → **Argo** (Odoo 18 Community Grupo SER en ARM, 161.153.207.224, systemd `odoo.service`, puerto 8069). Renombrado 2026-05-14: nombre canónico del proyecto = **Argo**. Dominio público se mantiene. Acceso: `/home/ubuntu/projects/argo/` y registry key `argo` (alias del directorio legacy).
 - DNS se maneja desde: micuenta.donweb.com → Nameservers y Zona DNS
 - Para agregar subdominio: registro tipo A, nombre: subdominio, contenido: 161.153.207.224
 
@@ -483,7 +560,7 @@ Proyectos migrados a ARM (abril 2026). Cuando se toque CADA uno, usar la URL ARM
 |----------|----------------------|----------------|-------------|
 | oraculo | https://oraculo-pablo.duckdns.org | 5000 | PM2 `oraculo` |
 | tutorai | https://tutorai.duckdns.org | 3001 | PM2 `tutorai` |
-| **Argo** (legacy: odoo.gruposer.com.ar) | https://odoo.gruposer.com.ar | 8069 | systemd `odoo.service` |
+| **Argo** (legacy: argo.gruposer.com.ar) | https://argo.gruposer.com.ar | 8069 | systemd `odoo.service` |
 | dania-captador | https://dania-captador.duckdns.org | 3002 | PM2 `dania-captador` |
 | servistecnicos-red | https://servistecnicos.gruposer.com.ar | 3003 | PM2 `servistecnicos-red` |
 | vendetta-api | https://vendetta-arm.duckdns.org | 3004 | PM2 `vendetta-api` |
@@ -511,24 +588,8 @@ Proyectos migrados a ARM (abril 2026). Cuando se toque CADA uno, usar la URL ARM
 
 ---
 
-## COMPUTER-USE MCP (Mac de Pablo) — lecciones 2026-04-23
-
-Esta sección aplica cuando trabajás con Pablo desde una instancia Claude que tiene **computer-use MCP** habilitado sobre su MacBook (típicamente claude.ai Desktop/web, NO desde RCs de ARM que no tienen computer-use). Reglas para evitar repetir errores ya vividos.
-
-### `request_access` — batchear al inicio, NUNCA a mitad de tarea
-- Pedí **TODAS las apps que vas a necesitar** en UN solo `request_access` al arrancar.
-- Cada call de `request_access` a mitad de tarea tiene alto riesgo de timeout de 60s o de perder los grants anteriores.
-- Aprobar UN diálogo con 5 apps es igual de rápido que aprobar 1.
-- **Batch típico para tareas Mac:** `["Finder", "<bundle ID de la app>", "com.microsoft.edgemac", "com.google.Chrome", "com.apple.Safari"]`.
-
-### `request_access` — el diálogo aparece en el display con focus, NO en el Mac físico
-- Si Pablo está controlando el Mac desde otro dispositivo (iPhone Mirroring, Jump Desktop, TeamViewer), el diálogo sale en el display remoto (celu), no en las pantallas físicas del Mac.
-- **Síntoma:** timeouts consecutivos de `request_access` aunque el bundle ID sea válido.
-- **Mitigación:** si falla 2+ veces seguidas, preguntar *"¿estás controlando el Mac desde otro dispositivo? Si sí, enfocá el Mac físico y reintento"*.
-
-### Centro de Control / Configuración del Sistema — NO granted
-- `request_access` NO acepta "Centro de Control", "Configuración del Sistema", "Ajustes del Sistema" ni sus bundle IDs (`com.apple.controlcenter`, `com.apple.systempreferences`).
-- **Implicancia:** cualquier cosa que viva en Preferencias del Sistema (Focus/No Molestar, Notificaciones, Red, etc.) NO se puede automatizar desde computer-use → handoff al usuario con instrucciones exactas de 3-5 clicks.
+## COMPUTER-USE MCP (Mac) — solo aplica en claude.ai Desktop con computer-use, NO en RCs de ARM
+Playbook completo: `/home/ubuntu/oraculo-config/claude-md/historical/computer-use-mac.md`
 
 ---
 
@@ -544,21 +605,5 @@ Los `*`, `•`, `●` en pantallas de auth casi siempre son mask de dots, NO el 
 
 ---
 
-## PLAYBOOK: OpenVPN Connect v3 + router Ruijie (Mac)
-
-Router Ruijie (y otros con template clásico de OpenVPN) generan `.ovpn` que el parser estricto de OpenVPN Connect v3 en macOS rechaza con `"Your connection configuration contains unsupported options"`.
-
-### Flow completo:
-1. `request_access` en una sola call: `["Finder", "org.openvpn.client.app"]`
-2. Usuario sube el `.tar` con `etc/openvpn/{client.ovpn,ca.crt,ca.key}`
-3. Extraer tar en sandbox, leer el `.ovpn`
-4. Generar `.ovpn` limpio en `mnt/outputs/client_oc.ovpn` **sin las 7 directivas problemáticas**, preservando `<ca>`:
-   - **Directivas a quitar:** `log <path>`, `status <path>`, `mute <n>`, `resolv-retry <value>`, `persist-key`, `route-delay <n>`, `explicit-exit-notify <n>`
-   - **Directivas que se preservan:** `dev`, `nobind`, `proto`, `float`, `client`, `remote`, `verb`, `auth`, `auth-nocache`, `reneg-sec`, `remote-cert-tls`, `auth-user-pass`, `cipher`, `<ca>...</ca>`, `<cert>...</cert>`, `<key>...</key>`
-5. Dar link `computer://` para que Pablo baje a Descargas
-6. Doble-click al archivo desde Finder → OpenVPN Connect importa
-7. En el editor del perfil:
-   - Si el perfil solo tiene `<ca>` embebido (no `<cert>`/`<key>`) pero el servidor usa user/pass auth, OpenVPN Connect muestra `"Missing external certificate"` al conectar. **Fix:** desactivar el toggle `Require External Certificate`. No hace falta cargar nada más.
-   - Cargar usuario/password (verificar con reveal del ojo, ver regla de credenciales).
-8. **Save Changes** → **Connect**
-9. Verificar por screenshot: `Securely Connected!` + timer + IP privada asignada + gráfico de tráfico.
+## PLAYBOOK OpenVPN Connect v3 + Ruijie (Mac)
+Flow completo: `/home/ubuntu/oraculo-config/claude-md/historical/openvpn-ruijie-mac.md`. Leer solo si Pablo pide configurar VPN en el Mac.
