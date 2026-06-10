@@ -135,7 +135,7 @@ Multi-tenant: instancias/{empresa}/{persona}/
 Empresas: oraculo (admin, Pablo 95%), red-security (cliente, Gian pendiente SSH)
 
 ## NOTIFICACIONES
-Telegram @Matrixoraculobot. Token: 8265889890:AAHyHmXsVg5NN-ffgSeFIDCC5U-PfC5UYZ0. CHAT_ID: 989844970.
+Telegram @Matrixoraculobot. Token: <leer de /home/ubuntu/.secrets/telegram-oraculo.env>. CHAT_ID: 989844970.
 Anti-spam: 60 min por tipo. Solo: tarea completada/fallida, emergencia seguridad.
 
 ## CRONS
@@ -201,8 +201,8 @@ v11: $0/día (OAuth Max). Infra: $0 (Oracle Always Free). v10 acumulado: $7.04 (
 
 ## CONTEXTO OPERATIVO
 ### Telegram
-Mandar archivo: curl -s -X POST "https://api.telegram.org/bot8265889890:AAHyHmXsVg5NN-ffgSeFIDCC5U-PfC5UYZ0/sendDocument" -F chat_id=989844970 -F document=@/ruta/archivo -F caption="descripción"
-Mandar mensaje: curl -s -X POST "https://api.telegram.org/bot8265889890:AAHyHmXsVg5NN-ffgSeFIDCC5U-PfC5UYZ0/sendMessage" -d chat_id=989844970 -d text="mensaje"
+Mandar archivo: curl -s -X POST "https://api.telegram.org/bot<leer de /home/ubuntu/.secrets/telegram-oraculo.env>/sendDocument" -F chat_id=989844970 -F document=@/ruta/archivo -F caption="descripción"
+Mandar mensaje: curl -s -X POST "https://api.telegram.org/bot<leer de /home/ubuntu/.secrets/telegram-oraculo.env>/sendMessage" -d chat_id=989844970 -d text="mensaje"
 
 ### Archivos .bat para Pablo
 Ubicación: /home/ubuntu/projects/bat-files/. Siempre con CRLF. Después de crear/modificar, mandar por Telegram.
