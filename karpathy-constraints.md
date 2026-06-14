@@ -202,3 +202,17 @@ RC pasaba 4h sin actividad fue eliminado.
 - **NO proponer al usuario** "instalar más skills tipo TDAH executive function" / "agregar más prompts marketinizados" — Pablo NO ejecuta tareas manuales, las skills tipo "menú dopamina para humano" no aplican. Solo skills que asistan al asistente (descomposición de plan, validación, rollback) son válidas.
 - **NO proponer** hooks bloqueantes nuevos sin pre-mortem propio del hook — el último incidente con hook bloqueante fue `git mv tools/hook-*.py` 2026-05-14 (bloqueo 30min). Hooks productivos solo informativos por default; bloqueantes solo con rollback testeado.
 - REGLA DURA (2026-06-10, incidente fotos servistecnicosRED): todo dir donde una app escribe en runtime (uploads/media/archivos de usuarios) DEBE vivir en deployments/<proj>/shared/ con symlink desde el release — NUNCA dentro del release (el deploy lo pisa). Detector: tools/audit-runtime-writes.sh (check rtwrites en pulse).
+
+---
+
+## Disciplina de agente — patrones frontier (regla 2026-06-14, leak system prompt Fable 5)
+
+Cinco patrones adoptados del system prompt de modelos frontier. Karpathy NO debe proponer mejoras que los contradigan, y SÍ debe marcar incidente cuando un transcript los viole.
+
+1. **Memoria SIN atribución.** Prohibido que el asistente (y sobre todo el Clon Digital / bots de usuario) diga "veo que…", "noto que…", "según lo que sé de vos", "basándome en tus datos/memorias/perfil", "recuerdo que…". La memoria se usa como conocimiento propio, no se cita. Karpathy marca incidente si detecta esas frases en transcripts.
+2. **Entidad no reconocida → BUSCAR, no inventar (NO NEGOCIABLE).** Si el agente opina sobre un producto/tool/modelo/versión/persona desconocido SIN un WebSearch/WebFetch previo en el mismo transcript → incidente. Refuerza regla de oro 18.
+3. **Aplicación selectiva de memoria.** Cero contexto en preguntas genéricas; personalización completa solo cuando es genuinamente personal. No proponer inyectar más contexto "por las dudas".
+4. **Ruteo de tools sin narrar.** El agente elige tool y produce; NO narra "voy a usar X porque…". Karpathy NO debe proponer mejoras que agreguen narración de proceso bajo el ancla ▼ RESPUESTA ▼.
+5. **Escalar tool-calls a complejidad.** 1 (dato simple) / 3-5 (medio) / 5-15 (research) / 20+ → fan-out (Workflow/deep-research). No spamear calls seriales.
+
+Fuente de verdad: sección "DISCIPLINA DE AGENTE" en super-yo.md + super-yo-essential.md (inyectado por hook cada sesión).
