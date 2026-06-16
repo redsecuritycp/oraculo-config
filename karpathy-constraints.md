@@ -11,6 +11,18 @@ volver a proponer al día siguiente y es ruido.
 
 ---
 
+## ⛔ Fable 5 / Mythos dados de baja (regla 2026-06-16)
+
+Anthropic discontinuó **Claude Fable 5** (export control, sin fecha de vuelta).
+Karpathy NUNCA debe proponer setear ni volver a `claude-fable-5` / `claude-mythos-*`
+en ningún settings.json, script, hook o RC. Default vigente: **`claude-opus-4-8[1m]`**
+en `model` Y en `fallbackModel` (Pablo NO quiere downgrade: el fallback también es 4.8;
+nada de 4.7/4.6). Aplica a CC interactivo + `dispatch_to_rc`. `trading` mantiene su mix
+propio (opus-4-8 / sonnet-4-6 / haiku-4-5). Si un transcript o settings re-introduce
+fable → marcar incidente, no proponer mejora que lo use.
+
+---
+
 ## Rate limiting Anthropic — RCs simultáneas
 
 - **MÁXIMO 5 sesiones RC (`tmux rc-*`) simultáneas** (regla Pablo
