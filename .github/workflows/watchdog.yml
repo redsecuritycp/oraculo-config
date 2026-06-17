@@ -8,8 +8,39 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 8
     steps:
+      - name: Estado real de la VM (OCI) — revivir si está apagada, sin importar el dominio
+        id: vmstate
+        run: |
+          # CLAVE para DR autónomo: si Hetzner tomó el dominio (failover), el health-check del
+          # dominio daría 200 (Hetzner) y nunca reviviríamos ARM. Por eso chequeamos el estado
+          # REAL de la VM en OCI. Si está STOPPED → START directo. Así ARM revive solo aunque
+          # Hetzner esté sirviendo, y después auto-failback.sh (en ARM) recupera el tráfico.
+          pip install oci-cli --quiet 2>/dev/null
+          mkdir -p ~/.oci
+          echo "${{ secrets.OCI_PRIVATE_KEY }}" > ~/.oci/oci_api_key.pem
+          chmod 600 ~/.oci/oci_api_key.pem
+          cat > ~/.oci/config << EOF
+          [DEFAULT]
+          user=${{ secrets.OCI_USER_OCID }}
+          fingerprint=${{ secrets.OCI_FINGERPRINT }}
+          tenancy=${{ secrets.OCI_TENANCY_OCID }}
+          region=sa-santiago-1
+          key_file=~/.oci/oci_api_key.pem
+          EOF
+          sed -i 's/^          //' ~/.oci/config
+          STATE=$(oci compute instance get --instance-id "${{ secrets.ARM_INSTANCE_ID }}" --query 'data."lifecycle-state"' --raw-output 2>/dev/null || echo UNKNOWN)
+          echo "VM state: $STATE"
+          echo "state=$STATE" >> $GITHUB_OUTPUT
+          if [ "$STATE" = "STOPPED" ]; then
+            curl -s -X POST "https://api.telegram.org/bot${{ secrets.TG_TOKEN }}/sendMessage" \
+              -d chat_id="${{ secrets.TG_CHAT }}" -d text="🔋 Watchdog: VM ARM STOPPED → ejecutando START (revival autónomo)." > /dev/null
+            oci compute instance action --instance-id "${{ secrets.ARM_INSTANCE_ID }}" --action START 2>&1 || true
+            echo "started=yes" >> $GITHUB_OUTPUT
+          fi
+
       - name: Check ARM health (3 intentos, 30s cada uno, 60s entre ellos)
         id: health
+        if: steps.vmstate.outputs.started != 'yes'
         run: |
           # 3 checks con 60s de espera entre cada uno, para evitar falsos positivos
           # por blips transitorios (ej: bombardeo SSH causa lentitud momentánea)
@@ -33,7 +64,7 @@ jobs:
 
       - name: Soft restart via webhook
         id: webhook
-        if: steps.health.outputs.http != '200'
+        if: steps.vmstate.outputs.started != 'yes' && steps.health.outputs.http != '200'
         run: |
           curl -s -X POST "https://api.telegram.org/bot${{ secrets.TG_TOKEN }}/sendMessage" \
             -d chat_id="${{ secrets.TG_CHAT }}" \
