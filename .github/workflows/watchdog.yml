@@ -65,15 +65,23 @@ jobs:
           EOF
           sed -i 's/^          //' ~/.oci/config
 
+          # Detectar estado: si la VM está STOPPED hay que START (no SOFTRESET, que requiere running).
+          STATE=$(oci compute instance get --instance-id "${{ secrets.ARM_INSTANCE_ID }}" --query 'data."lifecycle-state"' --raw-output 2>/dev/null || echo UNKNOWN)
+          if [ "$STATE" = "STOPPED" ]; then
+            ACTION=START
+          else
+            ACTION=SOFTRESET
+          fi
+
           # Notificar
           curl -s -X POST "https://api.telegram.org/bot${{ secrets.TG_TOKEN }}/sendMessage" \
             -d chat_id="${{ secrets.TG_CHAT }}" \
-            -d text="🔄 Webhook falló. Ejecutando HARD REBOOT via OCI API..." > /dev/null
+            -d text="🔄 Webhook falló. VM estado=$STATE → ejecutando $ACTION via OCI API..." > /dev/null
 
-          # Ejecutar SOFTRESET (apaga y enciende la VM)
+          # START enciende una VM apagada; SOFTRESET reinicia una colgada-prendida
           oci compute instance action \
             --instance-id "${{ secrets.ARM_INSTANCE_ID }}" \
-            --action SOFTRESET 2>&1 || true
+            --action $ACTION 2>&1 || true
 
           # Esperar 3 minutos para que ARM bootee
           sleep 180
