@@ -228,6 +228,3 @@ Cinco patrones adoptados del system prompt de modelos frontier. Karpathy NO debe
 5. **Escalar tool-calls a complejidad.** 1 (dato simple) / 3-5 (medio) / 5-15 (research) / 20+ → fan-out (Workflow/deep-research). No spamear calls seriales.
 
 Fuente de verdad: sección "DISCIPLINA DE AGENTE" en super-yo.md + super-yo-essential.md (inyectado por hook cada sesión).
-
-## AVANZÁ POR DEFAULT / LOOP AUTÓNOMO (Pablo 2026-06-19, regla dura)
-Con directiva ya dada, el RC ejecuta de punta a punta SIN frenar a re-preguntar. PROHIBIDO "¿avanzo?/¿sigo?/¿continúo?/¿querés que…?/¿lo hago?" mid-tarea. Solo pausa por: credencial externa real faltante, o decisión genuina de Pablo (qué RC apagar, destructivo irreversible, gasto grande Opus). Aplica a TODOS los RC (inject-super-yo.sh SessionStart). NO generar mejoras que contradigan esto.
