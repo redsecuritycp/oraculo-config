@@ -92,6 +92,7 @@ recreate() {
 log "--- rc-watchdog tick ---"
 
 declare -a RECREATED=()
+declare -a FAILED=()
 declare -a SUMMARY=()
 
 for name in $(gather_targets); do
@@ -118,14 +119,19 @@ for name in $(gather_targets); do
     case "$result" in
         recreated) RECREATED+=("$name"); SUMMARY+=("$name: MUERTA → recreada") ;;
         skip-max)  SUMMARY+=("$name: MUERTA → skip (5 RCs sanas)") ;;
-        *)         SUMMARY+=("$name: MUERTA → recrear FALLÓ") ;;
+        *)         FAILED+=("$name"); SUMMARY+=("$name: MUERTA → recrear FALLÓ") ;;
     esac
 done
 
+# Auto-sanado (recreó OK) → DIGEST: informativo, no interrumpe a Pablo.
 if [ ${#RECREATED[@]} -gt 0 ]; then
     list=$(printf '%s, ' "${RECREATED[@]}"); list="${list%, }"
-    msg="🩺 rc-watchdog recreó RC(s) muerta(s): $list"
-    bash "$TELEGRAM" --immediate "$msg" >/dev/null 2>&1 || log "telegram fail"
+    bash "$TELEGRAM" --digest "🩺 rc-watchdog auto-revivió: $list" >/dev/null 2>&1 || log "telegram fail"
+fi
+# Recrear FALLÓ → DIRECTO: Pablo tiene que actuar, la RC no levanta sola.
+if [ ${#FAILED[@]} -gt 0 ]; then
+    list=$(printf '%s, ' "${FAILED[@]}"); list="${list%, }"
+    bash "$TELEGRAM" --immediate "🔴 rc-watchdog NO pudo recrear RC(s): $list — no levantan solas, revisar." >/dev/null 2>&1 || log "telegram fail"
 fi
 
 printf '%s\n' "${SUMMARY[@]}" | tee -a "$LOG_FILE"
