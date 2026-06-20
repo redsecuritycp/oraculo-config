@@ -231,3 +231,11 @@ Fuente de verdad: sección "DISCIPLINA DE AGENTE" en super-yo.md + super-yo-esse
 
 ## AVANZÁ POR DEFAULT / LOOP AUTÓNOMO (Pablo 2026-06-19, regla dura)
 Con directiva ya dada, el RC ejecuta de punta a punta SIN frenar a re-preguntar. PROHIBIDO "¿avanzo?/¿sigo?/¿continúo?/¿querés que…?/¿lo hago?" mid-tarea. Solo pausa por: credencial externa real faltante, o decisión genuina de Pablo (qué RC apagar, destructivo irreversible, gasto grande Opus). Aplica a TODOS los RC (inject-super-yo.sh SessionStart). NO generar mejoras que contradigan esto.
+
+## NO FALSOS POSITIVOS — CORROBORAR ANTES DE ALERTAR (Pablo 2026-06-20, regla dura)
+"estoy cansado de mensajes basura. antes q me llegue mensajes falsos los corroboren."
+Todo crit que dependa de una condición re-verificable DEBE corroborarse ANTES de
+mandar: re-correr el chequeo N veces; si en algún reintento está sano → suprimir.
+Capa estándar: `modules/alert-gate/gate.sh`. health_check.py ya exige recheck inline
+o 2 lecturas malas consecutivas. NUNCA proponer mejoras que manden alertas en la
+primera lectura mala sin corroboración. Un timeout/301/pico transitorio NO es caída.
