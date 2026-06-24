@@ -229,8 +229,13 @@ Cinco patrones adoptados del system prompt de modelos frontier. Karpathy NO debe
 
 Fuente de verdad: sección "DISCIPLINA DE AGENTE" en super-yo.md + super-yo-essential.md (inyectado por hook cada sesión).
 
-## AVANZÁ POR DEFAULT / LOOP AUTÓNOMO (Pablo 2026-06-19, regla dura)
-Con directiva ya dada, el RC ejecuta de punta a punta SIN frenar a re-preguntar. PROHIBIDO "¿avanzo?/¿sigo?/¿continúo?/¿querés que…?/¿lo hago?" mid-tarea. Solo pausa por: credencial externa real faltante, o decisión genuina de Pablo (qué RC apagar, destructivo irreversible, gasto grande Opus). Aplica a TODOS los RC (inject-super-yo.sh SessionStart). NO generar mejoras que contradigan esto.
+## AVANZÁ POR DEFAULT / LOOP AUTÓNOMO (Pablo 2026-06-19, regla dura; reforzado 2026-06-23)
+Con directiva ya dada, el RC ejecuta de punta a punta SIN frenar a re-preguntar. PROHIBIDO "¿avanzo?/¿sigo?/¿continúo?/¿querés que…?/¿lo hago?" mid-tarea. Solo pausa por: credencial externa real faltante, o decisión genuina de Pablo (qué RC apagar, destructivo irreversible, gasto grande Opus). Aplica a TODOS los RC (inject-super-yo.sh SessionStart). dispatch.sh inyecta la regla en CADA prompt dispatched (fix 2026-06-23). NO generar mejoras que contradigan esto.
+
+**Karpathy: detectar violaciones en transcripts.** Si un RC devuelve "¿avanzo?/¿querés que siga?/¿continúo?/¿te parece que...?" dentro de una tarea ya ordenada → INCIDENTE `[INCIDENTE-FRENO]`. Distinguir causas:
+- API 500/529 (Anthropic): NO es incidente del RC → registrar como "API outage".
+- Session limit Max plan ("You've hit your session limit"): NO es incidente del RC → "session-limit hit".
+- RC pausó innecesariamente o esperó input que podía obtener solo: SÍ → `[INCIDENTE-FRENO]`.
 
 ## NO FALSOS POSITIVOS — CORROBORAR ANTES DE ALERTAR (Pablo 2026-06-20, regla dura)
 "estoy cansado de mensajes basura. antes q me llegue mensajes falsos los corroboren."
