@@ -244,3 +244,19 @@ mandar: re-correr el chequeo N veces; si en algún reintento está sano → supr
 Capa estándar: `modules/alert-gate/gate.sh`. health_check.py ya exige recheck inline
 o 2 lecturas malas consecutivas. NUNCA proponer mejoras que manden alertas en la
 primera lectura mala sin corroboración. Un timeout/301/pico transitorio NO es caída.
+
+## ENV GLOBAL DEL MOTOR DE IA = PRE-MORTEM + PRUEBA EN SECO (Pablo 2026-06-26, regla dura)
+Incidente fcc-proxy 26/06: instalar el proxy dejó `ANTHROPIC_BASE_URL` en el env
+global → los 4 RCs + executor + subagentes pasaron por el proxy (token propio, 401)
+→ caída total. Pre-mortem NO se disparó porque sus triggers eran sintácticos
+(comandos conocidos) y "instalar proxy + export env global" no matcheaba.
+Fix aplicado: pre-mortem ahora trigger DURO ante cualquier cambio a
+`ANTHROPIC_BASE_URL`/`ANTHROPIC_API_KEY`/`ANTHROPIC_AUTH_TOKEN`/`CLAUDE_CODE_*`,
+`settings.json`/`managed-settings.json` del motor, env en `.bashrc`/`.profile`
+heredada por todos los RCs, o poner un proxy/gateway delante del motor.
+Regla operativa: **el env global del motor se prueba en SECO/AISLADO** (un solo
+shell, sin exportar global) y solo se aplica detrás de pre-mortem completo con
+rollback <5s (`unset` + quitar línea de settings.json/.bashrc/.profile + restart
+agent-runner). Karpathy: NUNCA proponer mejoras que exporten env del motor global
+sin pre-mortem ni prueba aislada; tratar cualquier sugerencia de proxy/gateway IA
+global como blast-radius máximo.
