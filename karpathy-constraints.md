@@ -260,3 +260,9 @@ rollback <5s (`unset` + quitar línea de settings.json/.bashrc/.profile + restar
 agent-runner). Karpathy: NUNCA proponer mejoras que exporten env del motor global
 sin pre-mortem ni prueba aislada; tratar cualquier sugerencia de proxy/gateway IA
 global como blast-radius máximo.
+
+## SIMETRÍA ARM↔HETZNER (Pablo 2026-06-26, regla dura)
+"si arreglas uno arregla el otro siempre, no podemos ser idiotas asi." Hetzner es backup hot de ARM.
+Todo cambio de infra/failover/proxy/modelo LLM se aplica en AMBAS en el mismo turno. Failover de cuota
+canónico: freecc:8099 (remapea claude→gpt-5.5) → auth2api:8317 (OpenAI OAuth $0), idle hasta que
+quota-watchdog lo active. Karpathy: NUNCA proponer config de failover/proxy que aplique a una sola máquina.
