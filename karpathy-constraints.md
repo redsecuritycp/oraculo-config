@@ -27,7 +27,7 @@ fable → marcar incidente, no proponer mejora que lo use.
 
 - **MÁXIMO 5 sesiones RC (`tmux rc-*`) simultáneas** (regla Pablo
   2026-04-22, subida desde 3). El guard está en `rc-manager.sh start`.
-- La whitelist persistente (auto-revive por rc-manager) es solo `oraculo`.
+- Las RCs always-on salen de `desired-rcs.txt` persistente (manager.sh start/stop lo mantienen, sobrevive reboot). rc-oraculo siempre garantizado. NO proponer volver a whitelist hardcodeado.
   Las demás se levantan on-demand desde la pestaña "Proyectos" del
   dashboard o con `rc-manager.sh start <nombre>`.
 - **NO proponer**: "auto-levantar todos los RC al boot", "arrancar una RC
