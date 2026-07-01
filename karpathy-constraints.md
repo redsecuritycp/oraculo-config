@@ -266,3 +266,6 @@ global como blast-radius máximo.
 Todo cambio de infra/failover/proxy/modelo LLM se aplica en AMBAS en el mismo turno. Failover de cuota
 canónico: freecc:8099 (remapea claude→gpt-5.5) → auth2api:8317 (OpenAI OAuth $0), idle hasta que
 quota-watchdog lo active. Karpathy: NUNCA proponer config de failover/proxy que aplique a una sola máquina.
+
+## Telegram: cero ruido de recursos (Pablo 2026-07-01)
+Solo alertas ACCIONABLES-POR-PABLO (level=crit) llegan al Telegram. Recursos auto-gestionables (load/CPU/RAM/disco/huérfanos/quota-switch/servicio-reiniciado-solo) NUNCA notifican — se resuelven solos (meta-watchdog/self-heal/fcc-switch) y se logean en /var/log/oraculo/auto-managed.log. Choke point: modules/telegram-notify/notify.sh (AUTO_MANAGED_RE). NO agregar notificaciones de recursos por curl directo bypassando el gate.
